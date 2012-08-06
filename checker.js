@@ -1,8 +1,9 @@
+var util = require('util');
 var redis = require('redis');
-var client = redis.createClient();
+var redisClient = redis.createClient();
 
-client.on("error", function (err) {
-	console.log("Error " + err);
+redisClient.on("error", function (err) {
+    console.log("Error " + err);
 });
 
 //client.set("string key", "string val", redis.print);
@@ -16,31 +17,33 @@ client.on("error", function (err) {
 //	client.quit();
 //});
 
-exports.links = function(links) {
-	var invalidLinks = [];
-	var validLinks = [];
+exports.linksStatus = function(links, callback) {
+    var invalidLinks = [];
+    var validLinks = [];
+    links.forEach(function(link) {
 
-	links.forEach(function(link) {
-		client.get(link, function(err, reply) {
-		if (reply === null) {
-			storeLink(link);
-		} else {
-			if (reply !== 200 || reply !== 301) {
-				invalidLinks.push(link);
-			} else {
-				validLinks.push(link);
-			}
-		}
-// reply is null when the key is missing
-console.log(reply);
-		});
-	});
+        redisClient.get(link, function(err, reply) {
+            if(err) {
+                util.log('Error: ' + err);
+            }
+console.log('reply');                        
+console.log(reply);                        
+            // the link is not present into redis
+            if (reply === null) {
+                var crawler = require('./crawler');
+                crawler.crawl(link, function(res) {           
+                    redisClient.set(link,res.statusCode);
+                    reply = res.statusCode;
+                });
+            }
+            
+            if (reply !== 200 || reply !== 301) {
+                invalidLinks.push(link);
+            } else {
+                validLinks.push(link);
+            }
+
+        });
+        callback({'validLinks': validLinks, 'invalidLinks': invalidLinks});
+    });
 }
-
-var storeLink = function(link, retStatusCode) {
-	var crawler = require('./crawler');
-	crawler.crawl(link, function(statusCode) {
-		client.set(link,statusCode);
-		retStatusCode = statusCode;
-	});
-};
