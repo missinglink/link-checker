@@ -37,7 +37,7 @@ console.log(reply);
                 });
             }
             
-            if (reply !== 200 || reply !== 301) {
+            if (reply >= 400) {
                 invalidLinks.push(link);
             } else {
                 validLinks.push(link);
