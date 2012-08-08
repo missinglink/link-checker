@@ -5,6 +5,7 @@
   "dependencies" : {
     "coffee-script" : "*",
     "express" : "*",
-    "redis" : "*"
+    "redis" : "*",
+    "jitter" : "*"
   }
 }

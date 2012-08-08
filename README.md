@@ -1,8 +1,12 @@
-Install
---------
+Install Node
+------------
 
     echo '[Installing Node]' && sh node-install.sh
-    echo '[Installing Modules]' && npm install
+
+Install/Update Packages
+-----------------------
+
+    echo '[Updating Modules]' && npm install
 
 Run the example server
 ---------------------
@@ -12,3 +16,8 @@ Run the example server
 Example usage
 
     http://localhost:3000/check?links=["http://www.example.com"]
+
+Auto-Compile coffee scripts
+---------------------------
+
+    sh moka.sh
