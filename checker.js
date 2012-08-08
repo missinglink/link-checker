@@ -47,5 +47,5 @@ console.log(reply);
         callback({'validLinks': validLinks, 'invalidLinks': invalidLinks});
     });
     
-    redisClient.end();
+    redisClient.quit();
 }
