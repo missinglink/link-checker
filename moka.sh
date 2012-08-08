@@ -4,4 +4,5 @@ echo "----------------------------------------"
 echo "[Watching & Compiling Coffee Scripts]"
 echo "----------------------------------------"
 
+[ -d build ] || mkdir build
 ./node_modules/jitter/bin/jitter src build
