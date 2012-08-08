@@ -21,6 +21,7 @@ console.log(status);
             
             if(0 === status.invalidLinks.length) {
                 res.writeHead(302, {'Content-Type':'text/plain'});
+                res.end();
             } else {
                 res.writeHead(200, {'Content-Type':'text/plain'});
                 res.end(status.invalidLinks);
