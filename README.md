@@ -1,12 +1,12 @@
 Install Node
 ------------
 
-    echo '[Installing Node]' && sh node-install.sh
+    sh node-install.sh
 
 Install/Update Packages
 -----------------------
 
-    echo '[Updating Modules]' && npm install
+    npm install
 
 Run the example server
 ---------------------
