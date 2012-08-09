@@ -7,6 +7,7 @@ Quick Start
 -----------------------
 
     npm install
+    sudo apt-get install coffeescript
     coffee --compile --output build src
 
     clear && node build/server.js
