@@ -26,13 +26,13 @@ io.sockets.on 'connection', (socket) ->
       redis.hmset util.format('request.%s',id), data, (err,reply) ->
 
         # Add to processing queue
-        redis.rpush 'request.queue.index', id
+        redis.rpush 'request.queue', id
 
 # Worker
 worker = () ->
 
   # Try to load a request id from the queue
-  redis.lpop 'request.queue.index', (err,reqid) ->
+  redis.lpop 'request.queue', (err,reqid) ->
     if reqid?
     
       # Load request
