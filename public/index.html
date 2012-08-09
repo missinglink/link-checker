@@ -17,6 +17,7 @@
                 
                 $('body').addClass 'linkchecker'
                 
+                # Parse links and sent them to the server
                 $('a').each -> socket.emit 'link.add', href : this.href
                 
                 socket.on 'link.status', (link) ->
@@ -24,6 +25,7 @@
                     # Remove trailing slash
                     href = link.href.replace /\/+$/, ''
                     
+                    # Update all links with that href on the page
                     $('a[href="'+href+'"]').each ->
                         $(this).before $('<span>')
                                .addClass('status')
