@@ -17,16 +17,54 @@ redis.on 'error', (err) -> console.log err
 
 # Web Sockets
 io.sockets.on 'connection', (socket) ->
-    socket.on 'link.add', (data) -> redis.rpush 'link.queue', data.href
+  socket.on 'link.add', (data) ->
+    redis.incr 'request.index', (err,id) ->
+
+      # Persist request
+      redis.hmset util.format('request.%s',id), data
+
+      # Hit cache
+      redis.get util.format('url.%s',data.href), (err,respid) ->
+        if respid?
+        
+          # Load the response data
+          redis.hgetall util.format('response.%s',respid), (err,response) ->
+          
+            # Send reply to client
+            io.sockets.emit 'link.status',
+              href : data.href,
+              status: if response then response.statusCode else 404
+          
+        else
+
+          # Add to processing queue
+          redis.rpush 'request.queue.index', id
 
 # Worker
 worker = () ->
-    redis.lpop 'link.queue', (err,url) ->
-        if url?
-            request { url: url, method: 'GET' }, (error, response, body) ->
-                io.sockets.emit 'link.status',
-                    href : url.toString(),
-                    status: if response then response.statusCode else 404
+
+  # Try to load a request id from the queue
+  redis.lpop 'request.queue.index', (err,id) ->
+    if id?
+    
+      # Load the request data
+      redis.hgetall util.format('request.%s',id), (err,req) ->
+        if req?
+        
+          # Make HTTP request
+          request { url: req.href, method: 'GET' }, (error, response, body) ->
+          
+            # Persist HTTP response
+            redis.incr 'response.count', (err,incr) ->
+              redis.hmset util.format('response.%s',incr), response, (err,reply) ->
+
+                # Maintain url index with response ids
+                  redis.set util.format('url.%s',req.href), incr, (err,reply) ->
+                  
+                    # Send reply to client
+                    io.sockets.emit 'link.status',
+                      href : req.href,
+                      status: if response then response.statusCode else 404
 
     process.nextTick worker
 
