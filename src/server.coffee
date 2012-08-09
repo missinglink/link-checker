@@ -10,6 +10,9 @@ server.listen 3000
 # Express Routes
 app.use app.router
 app.use '/', express.static __dirname + '/../public'
+app.get '/test/:status', (req, res) ->
+  res.writeHead req.params.status, 'Content-Type': 'text/plain'
+  res.end req.params.status
 
 # Redis Setup
 redis = require('redis').createClient()

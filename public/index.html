@@ -16,17 +16,16 @@
                 $('body').addClass 'linkchecker'
                 
                 # Parse links and send them to the server
-                $('a').each -> socket.emit 'link.add', href : this.href
+                $('a').each -> socket.emit 'link.add', href : $(this).attr 'href'
                 
-                socket.on 'link.status', (link) ->
-                
-                    # Update all links with that href on the page
+                # Update links as data comes through the socket
+                socket.on 'link.status', (link) ->              
                     $('a').each ->
-                        if this.href == link.href
+                        if link.href == $(this).attr 'href'
                             $(this).before $('<span>')
                                 .addClass('status')
                                 .addClass('HTTP'+link.status)
-                                .text link.status
+                                .text(link.status)
 
         </script>
     </head>
@@ -38,5 +37,14 @@
         <p><a href="http://www.facebook.com">http://www.facebook.com</a></p>
         <p><a href="http://www.twitter.com">http://www.twitter.com</a></p>
         <p><a href="http://www.fewf234r433434fvwefewff323r3.com">http://www.fewf234r433434fvwefewff323r3.com</a></p>
+        
+        
+        <br />
+        
+        <p><a href="http://localhost:3000/test/101">http://localhost:3000/test/101</a></p>
+        <p><a href="http://localhost:3000/test/200">http://localhost:3000/test/200</a></p>
+        <p><a href="http://localhost:3000/test/300">http://localhost:3000/test/300</a></p>
+        <p><a href="http://localhost:3000/test/400">http://localhost:3000/test/400</a></p>
+        <p><a href="http://localhost:3000/test/500">http://localhost:3000/test/500</a></p>
     </body>
 </html>
