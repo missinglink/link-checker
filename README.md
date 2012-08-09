@@ -3,21 +3,19 @@ Install Node
 
     sh node-install.sh
 
-Install/Update Packages
+Quick Start
 -----------------------
 
     npm install
-
-Auto-Compile coffee scripts during dev
---------------------------------------
-
-    sh moka.sh
-
-Run the example server
----------------------
+    coffee --compile --output build src
 
     clear && node build/server.js
 
 Example usage
 
     http://localhost:3000
+
+Auto-Compile coffee scripts during dev
+--------------------------------------
+
+    sh moka.sh
