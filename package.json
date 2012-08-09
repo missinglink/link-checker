@@ -5,6 +5,7 @@
   "dependencies" : {
     "coffee-script" : "*",
     "express" : "*",
+    "hiredis" : "*",
     "redis" : "*",
     "jitter" : "*",
     "socket.io" : "*",
