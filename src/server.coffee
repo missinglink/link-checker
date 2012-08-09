@@ -23,10 +23,10 @@ io.sockets.on 'connection', (socket) ->
     redis.incr 'request.index', (err,id) ->
 
       # Persist request
-      redis.hmset util.format('request.%s',id), data
+      redis.hmset util.format('request.%s',id), data, (err,reply) ->
 
-      # Add to processing queue
-      redis.rpush 'request.queue.index', id
+        # Add to processing queue
+        redis.rpush 'request.queue.index', id
 
 # Worker
 worker = () ->
