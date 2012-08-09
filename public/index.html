@@ -17,7 +17,7 @@
                 
                 $('body').addClass 'linkchecker'
                 
-                $('a').each -> socket.emit 'link.add', { href : this.href }
+                $('a').each -> socket.emit 'link.add', href : this.href
                 
                 socket.on 'link.status', (link) ->
                 
