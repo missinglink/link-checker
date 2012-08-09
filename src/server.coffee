@@ -23,20 +23,8 @@ io.sockets.on 'connection', (socket) ->
 # Worker
 worker = () ->
     redis.lpop 'link.queue', (err,url) ->
-        if url?
-
-            urlObj = require('url').parse url.toString(), true
-            options = {
-                hostname: urlObj.hostname,
-                port: (urlObj.port)    ?   urlObj.port    :   80,
-                path: (urlObj.path)    ?   urlObj.path    :   '/',
-                method: 'GET'
-            }
-
-            req = require('http').request options, (res) ->
-                io.sockets.emit 'link.status', { href : url.toString(), status: res.statusCode }
-
-            req.end();
+        if url? require 'request' { url: url, method: 'GET' }, (error, response, body) ->
+            io.sockets.emit 'link.status', { href : url.toString(), status: if response then response.statusCode else 404 }
 
     process.nextTick worker
 

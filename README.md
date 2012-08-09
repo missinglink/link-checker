@@ -8,16 +8,16 @@ Install/Update Packages
 
     npm install
 
+Auto-Compile coffee scripts during dev
+--------------------------------------
+
+    sh moka.sh
+
 Run the example server
 ---------------------
 
-    clear && node server.js
+    clear && node build/server.js
 
 Example usage
 
-    http://localhost:3000/check?links=["http://www.example.com"]
-
-Auto-Compile coffee scripts
----------------------------
-
-    sh moka.sh
+    http://localhost:3000
