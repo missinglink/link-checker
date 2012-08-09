@@ -17,7 +17,7 @@
                 
                 $('body').addClass 'linkchecker'
                 
-                # Parse links and sent them to the server
+                # Parse links and send them to the server
                 $('a').each -> socket.emit 'link.add', href : this.href
                 
                 socket.on 'link.status', (link) ->
