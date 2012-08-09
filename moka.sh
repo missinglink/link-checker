@@ -1,8 +1,8 @@
 #!/bin/sh
 
-echo "----------------------------------------"
+echo "-------------------------------------"
 echo "[Watching & Compiling Coffee Scripts]"
-echo "----------------------------------------"
+echo "-------------------------------------"
 
 [ -d build ] || mkdir build
-./node_modules/jitter/bin/jitter src build
+node node_modules/jitter/bin/jitter src build
