@@ -47,12 +47,10 @@ worker = () ->
           
             # Cache hit
             if status?
-
+            
               # Send reply to client
-              io.sockets.emit 'link.status',
-                href : req.href,
-                status: status
-
+              io.sockets.emit 'link.status', { href : req.href, status: status }
+            
             # Cache miss
             else
 
@@ -60,15 +58,13 @@ worker = () ->
               request { url: req.href, method: 'GET' }, (error, response, body) ->
 
                 # Get status code
-                status = if response then response.statusCode else 404
-
+                status = if response?.statusCode then response.statusCode else 404
+                
                 # Persist url status code
-                redis.set cachekey, status, (err,reply) ->
-
-                  # Send reply to client
-                  io.sockets.emit 'link.status',
-                    href : req.href,
-                    status: status
+                redis.set cachekey, status
+                
+                # Send reply to client
+                io.sockets.emit 'link.status', { href : req.href, status: status }
 
   # Loop
   process.nextTick worker
