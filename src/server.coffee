@@ -37,7 +37,7 @@ worker = () ->
     
       # Load request
       redis.hgetall util.format('request.%s',reqid), (err,req) ->
-        if req?
+        if req?.href
         
           # Cache key
           cachekey = util.format 'url.status.%s', req.href
