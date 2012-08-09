@@ -17,8 +17,7 @@ redis.on 'error', (err) -> console.log err
 
 # Web Sockets
 io.sockets.on 'connection', (socket) ->
-    socket.on 'link.add', (data) ->
-        redis.rpush 'link.queue', data.href
+    socket.on 'link.add', (data) -> redis.rpush 'link.queue', data.href
 
 # Worker
 worker = () ->
