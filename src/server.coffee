@@ -39,8 +39,11 @@ worker = () ->
       redis.hgetall util.format('request.%s',reqid), (err,req) ->
         if req?
         
+          # Cache key
+          cachekey = util.format 'url.status.%s', req.href
+        
           # Cache lookup
-          redis.get util.format('url.status.%s',req.href), (err,status) ->
+          redis.get cachekey, (err,status) ->
           
             # Cache hit
             if status?
@@ -60,7 +63,7 @@ worker = () ->
                 status = if response then response.statusCode else 404
 
                 # Persist url status code
-                redis.set util.format('url.status.%s',req.href), status, (err,reply) ->
+                redis.set cachekey, status, (err,reply) ->
 
                   # Send reply to client
                   io.sockets.emit 'link.status',
