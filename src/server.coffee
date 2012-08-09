@@ -11,7 +11,7 @@ app.use app.router
 app.use '/', express.static __dirname + '/../public'
 
 # Redis Setup
-redis = require('redis').createClient()
+redis = require('redis').createClient
 redis.on 'error', (err) ->
     console.log 'error event - ' + client.host + ':' + client.port + ' - ' + err
 
