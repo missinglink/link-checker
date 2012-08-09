@@ -24,7 +24,9 @@ io.sockets.on 'connection', (socket) ->
 worker = () ->
     redis.lpop 'link.queue', (err,url) ->
         if url? require 'request' { url: url, method: 'GET' }, (error, response, body) ->
-            io.sockets.emit 'link.status', { href : url.toString(), status: if response then response.statusCode else 404 }
+            io.sockets.emit 'link.status',
+                href : url.toString(),
+                status: if response then response.statusCode else 404
 
     process.nextTick worker
 
