@@ -44,11 +44,11 @@ io.sockets.on 'connection', (socket) ->
 worker = () ->
 
   # Try to load a request id from the queue
-  redis.lpop 'request.queue.index', (err,id) ->
-    if id?
+  redis.lpop 'request.queue.index', (err,reqid) ->
+    if reqid?
     
       # Load the request data
-      redis.hgetall util.format('request.%s',id), (err,req) ->
+      redis.hgetall util.format('request.%s',reqid), (err,req) ->
         if req?
         
           # Make HTTP request
