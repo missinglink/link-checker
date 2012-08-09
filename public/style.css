@@ -1,0 +1,21 @@
+.linkchecker .status {
+    font-family: 'arial';
+    font-size: 0.8em;
+    margin-right: 5px;
+    padding: 1px 2px;
+
+    border: solid 1px #000;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.linkchecker .HTTP200,
+.linkchecker .HTTP201 {
+    color: green;
+    border-color: green;
+}
+
+.linkchecker .HTTP404 {
+    color: red;
+}

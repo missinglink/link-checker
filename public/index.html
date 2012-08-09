@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="http://coffeescript.org/extras/coffee-script.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/client/lib.js"></script>
+        
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        
+        <script type="text/coffeescript">
+            
+            $ ->
+                socket = io.connect 'http://localhost', port : 3000
+                
+                $('body').addClass 'linkchecker'
+                
+                $('a').each -> socket.emit 'link.add', { href : this.href }
+                
+                socket.on 'link.status', (link) ->
+                
+                    href = link.href.replace /\/+$/, ''
+                    
+                    $('a[href="'+href+'"]').each ->
+                        $(this).before $('<span>')
+                               .addClass('status')
+                               .addClass('HTTP'+link.status)
+                               .text link.status
+                
+        </script>
+        
+    </head>
+    <body>
+        <p><a href="http://www.google.com">google</a></p>
+        <p><a href="http://www.amazon.com">amazon</a></p>
+        <p><a href="http://www.yahoo.com">yahoo</a></p>
+        <p><a href="http://www.facebook.com">facebook</a></p>
+        <p><a href="http://www.twitter.com">twitter</a></p>
+        <p><a href="http://www.gergergg345643534ggrgegregergerggre.com">random</a></p>
+    </body>
+</html>
