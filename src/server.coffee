@@ -18,6 +18,8 @@ redis.on 'error', (err) -> console.log err
 # Web Sockets
 io.sockets.on 'connection', (socket) ->
   socket.on 'link.add', (data) ->
+  
+    # Get new request primary id
     redis.incr 'request.index', (err,id) ->
 
       # Persist request
@@ -54,8 +56,10 @@ worker = () ->
           # Make HTTP request
           request { url: req.href, method: 'GET' }, (error, response, body) ->
           
-            # Persist HTTP response
+            # Get new response primary id
             redis.incr 'response.count', (err,incr) ->
+            
+              # Persist HTTP response
               redis.hmset util.format('response.%s',incr), response, (err,reply) ->
 
                 # Maintain url index with response ids
