@@ -1,4 +1,3 @@
-
 # Configure Server
 express = require 'express'
 request = require 'request'
@@ -14,7 +13,7 @@ app.use '/', express.static __dirname + '/../public'
 # Redis Setup
 redis = require('redis').createClient()
 redis.on 'error', (err) ->
-    console.log 'error event - ' + client.host + ':' + client.port + ' - ' + err
+    console.log 'error event - ' + redis.host + ':' + redis.port + ' - ' + err
 
 # Web Sockets
 io.sockets.on 'connection', (socket) ->
