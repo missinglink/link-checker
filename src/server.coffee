@@ -25,22 +25,8 @@ io.sockets.on 'connection', (socket) ->
       # Persist request
       redis.hmset util.format('request.%s',id), data
 
-      # Hit cache
-      redis.get util.format('url.%s',data.href), (err,respid) ->
-        if respid?
-        
-          # Load the response data
-          redis.hgetall util.format('response.%s',respid), (err,response) ->
-          
-            # Send reply to client
-            io.sockets.emit 'link.status',
-              href : data.href,
-              status: if response then response.statusCode else 404
-          
-        else
-
-          # Add to processing queue
-          redis.rpush 'request.queue.index', id
+      # Add to processing queue
+      redis.rpush 'request.queue.index', id
 
 # Worker
 worker = () ->
@@ -49,27 +35,39 @@ worker = () ->
   redis.lpop 'request.queue.index', (err,reqid) ->
     if reqid?
     
-      # Load the request data
+      # Load request
       redis.hgetall util.format('request.%s',reqid), (err,req) ->
         if req?
         
-          # Make HTTP request
-          request { url: req.href, method: 'GET' }, (error, response, body) ->
+          # Cache lookup
+          redis.get util.format('url.status.%s',req.href), (err,status) ->
           
-            # Get new response primary id
-            redis.incr 'response.count', (err,incr) ->
-            
-              # Persist HTTP response
-              redis.hmset util.format('response.%s',incr), response, (err,reply) ->
+            # Cache hit
+            if status?
 
-                # Maintain url index with response ids
-                  redis.set util.format('url.%s',req.href), incr, (err,reply) ->
-                  
-                    # Send reply to client
-                    io.sockets.emit 'link.status',
-                      href : req.href,
-                      status: if response then response.statusCode else 404
+              # Send reply to client
+              io.sockets.emit 'link.status',
+                href : req.href,
+                status: status
 
-    process.nextTick worker
+            # Cache miss
+            else
+
+              # Make HTTP request
+              request { url: req.href, method: 'GET' }, (error, response, body) ->
+
+                # Get status code
+                status = if response then response.statusCode else 404
+
+                # Persist url status code
+                redis.set util.format('url.status.%s',req.href), status, (err,reply) ->
+
+                  # Send reply to client
+                  io.sockets.emit 'link.status',
+                    href : req.href,
+                    status: status
+
+  # Loop
+  process.nextTick worker
 
 worker()
