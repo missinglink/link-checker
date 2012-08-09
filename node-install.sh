@@ -1,8 +1,8 @@
 #!/bin/sh
 
-echo "----------------------------------------"
+echo "-----------------"
 echo "[Installing Node]"
-echo "----------------------------------------"
+echo "-----------------"
 
 PROCESSORS=`cat /proc/cpuinfo | grep processor | wc -l`
 CLONE_PATH='/tmp/node-install'
