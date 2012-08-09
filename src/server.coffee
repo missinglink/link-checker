@@ -60,7 +60,7 @@ worker = () ->
                 # Get status code
                 status = if response?.statusCode then response.statusCode else 404
                 
-                # Persist url status code
+                # Persist status code
                 redis.set cachekey, status
                 
                 # Send reply to client
