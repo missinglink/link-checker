@@ -58,7 +58,7 @@ worker = () ->
               request { url: req.href, method: 'GET' }, (error, response, body) ->
 
                 # Get status code
-                status = if response?.statusCode then response.statusCode else 404
+                status = if response?.statusCode? then response.statusCode else 404
                 
                 # Persist status code
                 redis.set cachekey, status
