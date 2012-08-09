@@ -1,6 +1,19 @@
+div.test {
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    padding: 10px 25px;
+    background-color: #efefef;
+    overflow: auto;
+}
+
+div.test a {
+    font-size: 0.6em;
+}
+
 .linkchecker .status {
     font-family: 'arial';
-    font-size: 0.8em;
     
     margin-right: 5px;
     padding: 1px 2px;
@@ -18,8 +31,8 @@
 
 .linkchecker .HTTP100,
 .linkchecker .HTTP101 {
-    color: orange;
-    border-color: orange;
+    color: graytext;
+    border-color: graytext;
 }
 
 .linkchecker .HTTP200,
@@ -41,8 +54,8 @@
 .linkchecker .HTTP305,
 .linkchecker .HTTP306,
 .linkchecker .HTTP307 {
-    color: purple;
-    border-color: purple;
+    color: orange;
+    border-color: orange;
 }
 
 .linkchecker .HTTP400,
@@ -63,8 +76,8 @@
 .linkchecker .HTTP415,
 .linkchecker .HTTP416,
 .linkchecker .HTTP417 {
-    color: red;
-    border-color: red;
+    color: orangered;
+    border-color: orangered;
 }
 
 .linkchecker .HTTP500,
@@ -75,4 +88,5 @@
 .linkchecker .HTTP505 {
     color: red;
     border-color: red;
+    text-decoration: blink;
 }
