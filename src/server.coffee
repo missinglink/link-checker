@@ -65,6 +65,7 @@ worker = () ->
                 
                 # Persist status code
                 redis.set cachekey, status
+                redis.expire cachekey, 10
                 
                 # Send reply to client
                 io.sockets.emit 'link.status', { href : req.href, status: status }
