@@ -21,6 +21,7 @@
                 
                 socket.on 'link.status', (link) ->
                 
+                    # Remove trailing slash
                     href = link.href.replace /\/+$/, ''
                     
                     $('a[href="'+href+'"]').each ->
