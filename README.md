@@ -7,7 +7,7 @@ Quick Start
 -----------------------
 
     npm install
-    coffee --compile --output build src
+    node_modules/coffee-script/bin/coffee --compile --output build src
 
     clear && node build/server.js
 
