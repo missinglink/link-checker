@@ -20,8 +20,8 @@ redisClient.on("error", function (err) {
 exports.linksStatus = function(links, callback) {
     var invalidLinks = [];
     var validLinks = [];
-    links.forEach(function(link) {
-
+    for ( var i = 0, l = links.len; i < l; i++) {
+        var link = links[i];
         redisClient.get(link, function(err, reply) {
             if(err) {
                 util.log('Error: ' + err);
@@ -42,10 +42,8 @@ console.log(reply);
             } else {
                 validLinks.push(link);
             }
-
         });
         callback({'validLinks': validLinks, 'invalidLinks': invalidLinks});
-    });
-    
-    redisClient.quit();
+    }
+redisClient.quit();
 }
