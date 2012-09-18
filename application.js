@@ -82,11 +82,13 @@ console.log(reply);
     
     //listen to emits on the socket
     listen : function() {
-        this.socketIo.on(this.checkLinkEvent, function(data){
+        this.socketIo.on('connection', function (socket) {
+            socket.on(this.checkLinkEvent, function(data){
 console.log(data);
-            if (undefined !== data.href) {
-                this.checkLink(data.href);
-            }
+                if (undefined !== data.href) {
+                    this.checkLink(data.href);
+                }
+            });
         });
     }
 };
