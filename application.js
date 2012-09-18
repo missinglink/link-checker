@@ -82,7 +82,10 @@ console.log(reply);
     
     //listen to emits on the socket
     listen : function() {
+        console.log('listen');
         this.socketIo.on('connection', function (socket) {
+            console.log('connect');
+            console.log(this.checkLinkEvent);
             socket.on(this.checkLinkEvent, function(data){
 console.log(data);
                 if (undefined !== data.href) {
@@ -96,3 +99,11 @@ console.log(data);
 myApp.initRedis();
 myApp.initSocketIo();
 myApp.listen();
+
+// Mini Web Server
+var express = require('express');
+var http = require('http');
+var app     = express();
+var server  = http.createServer(app);
+app.use( '/', express.static(__dirname + '/public') );
+app.listen(3001);
