@@ -1,0 +1,92 @@
+div.test {
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    padding: 10px 25px;
+    background-color: #efefef;
+    overflow: auto;
+}
+
+div.test a {
+    font-size: 0.6em;
+}
+
+.linkchecker .status {
+    font-family: 'arial';
+    
+    margin-right: 5px;
+    padding: 1px 2px;
+
+    border-style: solid;
+    border-width: 1px;
+    
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    
+    color: black;
+    border-color: black;
+}
+
+.linkchecker .HTTP100,
+.linkchecker .HTTP101 {
+    color: graytext;
+    border-color: graytext;
+}
+
+.linkchecker .HTTP200,
+.linkchecker .HTTP201,
+.linkchecker .HTTP202,
+.linkchecker .HTTP203,
+.linkchecker .HTTP204,
+.linkchecker .HTTP205,
+.linkchecker .HTTP206 {
+    color: green;
+    border-color: green;
+}
+
+.linkchecker .HTTP300,
+.linkchecker .HTTP301,
+.linkchecker .HTTP302,
+.linkchecker .HTTP303,
+.linkchecker .HTTP304,
+.linkchecker .HTTP305,
+.linkchecker .HTTP306,
+.linkchecker .HTTP307 {
+    color: orange;
+    border-color: orange;
+}
+
+.linkchecker .HTTP400,
+.linkchecker .HTTP401,
+.linkchecker .HTTP402,
+.linkchecker .HTTP403,
+.linkchecker .HTTP404,
+.linkchecker .HTTP405,
+.linkchecker .HTTP406,
+.linkchecker .HTTP407,
+.linkchecker .HTTP408,
+.linkchecker .HTTP409,
+.linkchecker .HTTP410,
+.linkchecker .HTTP411,
+.linkchecker .HTTP412,
+.linkchecker .HTTP413,
+.linkchecker .HTTP414,
+.linkchecker .HTTP415,
+.linkchecker .HTTP416,
+.linkchecker .HTTP417 {
+    color: orangered;
+    border-color: orangered;
+}
+
+.linkchecker .HTTP500,
+.linkchecker .HTTP501,
+.linkchecker .HTTP502,
+.linkchecker .HTTP503,
+.linkchecker .HTTP504,
+.linkchecker .HTTP505 {
+    color: red;
+    border-color: red;
+    text-decoration: blink;
+}
