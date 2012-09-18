@@ -77,7 +77,7 @@ console.log(reply);
     initSocketIo : function() {
         var defaultSocketPort = 3000;
         this.socketIo = require('socket.io').listen(defaultSocketPort);
-        socketIo.set( 'log level', 0 );
+        this.socketIo.set( 'log level', 0 );
     },
     
     //listen to emits on the socket
