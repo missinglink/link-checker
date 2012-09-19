@@ -6,6 +6,7 @@
     "coffee-script" : "*",
     "express" : "*",
     "redis" : "*",
-    "jitter" : "*"
+    "jitter" : "*",
+    "socket.io" : "0.9.10"
   }
 }

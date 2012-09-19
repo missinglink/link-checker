@@ -80,7 +80,9 @@
                 $('a').each -> socket.emit 'link.add', href : $(this).attr 'href'
                 
                 # Update links as data comes through the socket
-                socket.on 'link.status', (link) ->              
+                socket.on 'link.status', (link) ->
+                    console.log link.link
+                    console.log link.status
                     $('a').each ->
                         if link.href == $(this).attr 'href'
                             $(this).before $('<span>')

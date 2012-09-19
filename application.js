@@ -1,13 +1,9 @@
-var myApp = {
-    version : 0.1,
-    dataFormat : 'JSON',
-//    defaultHTTPContentType : { 'Content-Type' : 'text/plain' },
-    redisClient : undefined,
-    socketIo : undefined,
-    
+var constants = {
     checkLinkEvent : 'link.add',
-    linkStatus     : 'link.status',
-    
+    linkStatus     : 'link.status'
+};
+
+var crawler = {
     crawlLink : function(link) {
         var httpClient    = require('http');
         var defaultPort   = 80;
@@ -25,42 +21,56 @@ var myApp = {
         var req = httpClient.request(options, function(res) {
 console.log('res');
 console.log(res.statusCode);
-            this.sendLinkStatus(link, res.StatusCode);
+            myApp.sendLinkStatus(link, res.StatusCode);
 
             // and store it into redis as cache for future requests
-            this.redisClient.set(link, res.statusCode);
+            myApp.redisClient.set(link, res.statusCode);
         });
 
         req.end();
-    },
-    
-    // emit the link status on the socket
-    sendLinkStatus : function(link, status) {
-        this.socketIo.emit(this.linkStatus,
-            {'link' : link, 'status' : status }
-        );
-    },
-    
+    }
+};
+
+var checker = {
     checkLink : function(link) {
-        this.redisClient.get(link, function(err, reply) {
+        myApp.redisClient.get(link, function(err, reply) {
             if (err) {
                 console.log('Error: ' + err);
             }
-console.log('reply');                        
-console.log(reply);                        
+                  
             // the link is not present into redis
             if (reply === null) {
-                this.crawlLink(link);
+                crawler.crawlLink(link);
             } else {
-                this.sendLinkStatus(link, res.StatusCode);
+console.log('link: ' + link);                
+console.log('reply: ' + reply);                
+                myApp.sendLinkStatus(link, reply);
             }
         });
+    }
+};
+
+var myApp = {
+    
+    redisClient : undefined,
+    socketIo : undefined,    
+    socket : undefined,
+    
+    // emit the link status on the socket
+    sendLinkStatus : function(link, status) {
+console.log('sendLinkStatus');        
+console.log('link: ' + link);        
+console.log('status: ' + status);        
+        
+        this.socket.emit(constants.linkStatus,
+            {'link' : link, 'status' : status }
+        );
     },
     
     // initialize and connect to a REDIS server
     initRedis : function() {
         var redis = require('redis');
-        var redisClient  = redis.createClient();
+        var redisClient = redis.createClient();
         if (undefined === redisClient){
             console.log('impossible to connect to redis');
         } else {
@@ -77,16 +87,17 @@ console.log(reply);
     initSocketIo : function() {
         var defaultSocketPort = 3000;
         this.socketIo = require('socket.io').listen(defaultSocketPort);
-        this.socketIo.set( 'log level', 0 );
+//        this.socketIo.set( 'log level', 0 );
     },
     
-    //listen to emits on the socket
+    //listen on connection and emits on the socket
     listen : function() {
         this.socketIo.on('connection', function (socket) {
-            socket.on(this.checkLinkEvent, function(data){
+            myApp.socket = socket;
+            socket.on(constants.checkLinkEvent, function(data) {
 console.log(data);
                 if (undefined !== data.href) {
-                    this.checkLink(data.href);
+                    checker.checkLink(data.href);
                 }
             });
         });
