@@ -18,10 +18,8 @@ var crawler = {
             method: defaultMethod
         };
 
-        var req = httpClient.request(options, function(res) {
-console.log('res');
-console.log(res.statusCode);
-            myApp.sendLinkStatus(link, res.StatusCode);
+        var req = httpClient.request(options, function(res) {        
+            myApp.sendLinkStatus(link, res.statusCode);
 
             // and store it into redis as cache for future requests
             myApp.redisClient.set(link, res.statusCode);
@@ -37,13 +35,11 @@ var checker = {
             if (err) {
                 console.log('Error: ' + err);
             }
-                  
+
             // the link is not present into redis
             if (reply === null) {
                 crawler.crawlLink(link);
             } else {
-console.log('link: ' + link);                
-console.log('reply: ' + reply);                
                 myApp.sendLinkStatus(link, reply);
             }
         });
@@ -58,10 +54,6 @@ var myApp = {
     
     // emit the link status on the socket
     sendLinkStatus : function(link, status) {
-console.log('sendLinkStatus');        
-console.log('link: ' + link);        
-console.log('status: ' + status);        
-        
         this.socket.emit(constants.linkStatus,
             {'link' : link, 'status' : status }
         );
@@ -87,18 +79,16 @@ console.log('status: ' + status);
     initSocketIo : function() {
         var defaultSocketPort = 3000;
         this.socketIo = require('socket.io').listen(defaultSocketPort);
-//        this.socketIo.set( 'log level', 0 );
+        this.socketIo.set( 'log level', 0 );
     },
     
     //listen on connection and emits on the socket
     listen : function() {
-        console.log('listen');
         this.socketIo.on('connection', function (socket) {
 
             myApp.socket = socket;
             socket.on(constants.checkLinkEvent, function(data) {
 
-console.log(data);
                 if (undefined !== data.href) {
                     checker.checkLink(data.href);
                 }
