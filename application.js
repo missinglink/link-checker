@@ -92,9 +92,12 @@ console.log('status: ' + status);
     
     //listen on connection and emits on the socket
     listen : function() {
+        console.log('listen');
         this.socketIo.on('connection', function (socket) {
+
             myApp.socket = socket;
             socket.on(constants.checkLinkEvent, function(data) {
+
 console.log(data);
                 if (undefined !== data.href) {
                     checker.checkLink(data.href);
@@ -107,3 +110,11 @@ console.log(data);
 myApp.initRedis();
 myApp.initSocketIo();
 myApp.listen();
+
+//// Mini Web Server
+//var express = require('express');
+//var http = require('http');
+//var app     = express();
+//var server  = http.createServer(app);
+//app.use( '/', express.static(__dirname + '/public') );
+//app.listen(3001);
