@@ -84,7 +84,7 @@
                     console.log link.link
                     console.log link.status
                     $('a').each ->
-                        if link.href == $(this).attr 'href'
+                        if link.link == $(this).attr 'href'
                             $(this).before $('<span>')
                                 .addClass('status')
                                 .addClass('HTTP'+link.status)
