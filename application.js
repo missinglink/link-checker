@@ -15,14 +15,15 @@ var crawler = {
             hostname: url.hostname,
             port: (url.port)    ?   url.port    :   defaultPort,
             path: (url.path)    ?   url.path    :   '/',
-            method: defaultMethod
+            method: defaultMethod,
+            'User-Agent' : '*'
         };
 
         var req = httpClient.request(options, function(res) {        
-            myApp.sendLinkStatus(link, res.statusCode);
+            application.sendLinkStatus(link, res.statusCode);
 
             // and store it into redis as cache for future requests
-            myApp.redisClient.set(link, res.statusCode);
+            application.redisClient.set(link, res.statusCode);
         });
 
         req.end();
@@ -31,7 +32,7 @@ var crawler = {
 
 var checker = {
     checkLink : function(link) {
-        myApp.redisClient.get(link, function(err, reply) {
+        application.redisClient.get(link, function(err, reply) {
             if (err) {
                 console.log('Error: ' + err);
             }
@@ -40,17 +41,21 @@ var checker = {
             if (reply === null) {
                 crawler.crawlLink(link);
             } else {
-                myApp.sendLinkStatus(link, reply);
+                application.sendLinkStatus(link, reply);
             }
         });
     }
 };
 
-var myApp = {
-    
+var application = {
+    defaultSocketPort : 3000,
     redisClient : undefined,
     socketIo : undefined,    
     socket : undefined,
+    
+    init: function(socketPort){
+        this.defaultSocketPort = socketPort;
+    },
     
     // emit the link status on the socket
     sendLinkStatus : function(link, status) {
@@ -77,29 +82,29 @@ var myApp = {
     
     // initialize the socket
     initSocketIo : function() {
-        var defaultSocketPort = 3000;
-        this.socketIo = require('socket.io').listen(defaultSocketPort);
+        this.socketIo = require('socket.io').listen(this.defaultSocketPort);
         this.socketIo.set( 'log level', 0 );
     },
     
     //listen on connection and emits on the socket
     listen : function() {
-        this.socketIo.on('connection', function (socket) {
+        this.socketIo.on('connection', (function (socket) {
 
-            myApp.socket = socket;
+            this.socket = socket;
             socket.on(constants.checkLinkEvent, function(data) {
 
                 if (undefined !== data.href) {
                     checker.checkLink(data.href);
                 }
             });
-        });
+        }).bind(this));
     }
 };
 
-myApp.initRedis();
-myApp.initSocketIo();
-myApp.listen();
+application.init(3000);
+application.initRedis();
+application.initSocketIo();
+application.listen();
 
 //// Mini Web Server
 //var express = require('express');
