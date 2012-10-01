@@ -1,60 +1,60 @@
 var constants = {
-    checkLinkEvent : 'link.add',
-    linkStatus     : 'link.status',
+    checkUrlEvent : 'url.add',
+    urlStatus     : 'url.status',
     dnsErrorStatus : 500,
     localhost      : 'localhost'
 };
 
 var crawler = {
     
-    // crawl al link passed using an HTTP client
-    crawlLink : function(link) {
+    // crawl an url passed using an HTTP client
+    crawlUrl : function(url) {
         var defaultPort   = 80;
         var defaultMethod = 'HEAD';
 //        var defaultProtocol = 'http';
-        var url = require('url').parse(link, true);
+        var urlParts = require('url').parse(url, true);
 
         var httpClient = require('http');
             var options = {
-                hostname: url.hostname,
-                port: (url.port)    ?   url.port    :   defaultPort,
-                path: (url.path)    ?   url.path    :   '/',
+                hostname: urlParts.hostname,
+                port: (urlParts.port)    ?   urlParts.port    :   defaultPort,
+                path: (urlParts.path)    ?   urlParts.path    :   '/',
                 method: defaultMethod
             };
 
         var clientRequest = httpClient.request(options, (function(response) {
-            this.handleResponse(link, response.statusCode);
+            this.handleResponse(url, response.statusCode);
         }).bind(this));
 
         clientRequest.on('error', (function(e) {
-            this.handleResponse(link, constants.dnsErrorStatus);
+            this.handleResponse(url, constants.dnsErrorStatus);
         }).bind(this));
 
         clientRequest.end();
     },
     
     // handle HTTP response in a central place
-    handleResponse: function(link, statusCode) {
-        broker.sendLinkStatus(link, statusCode);
+    handleResponse: function(url, statusCode) {
+        broker.sendUrlStatus(url, statusCode);
 
         // and store it into redis as cache for future requests
-        application.redisClient.set(link, statusCode);
+        application.redisClient.set(url, statusCode);
     }
 };
 
 var checker = {
-    checkLink : function(link) {
-        application.redisClient.get(link, function(err, reply) {
+    checkUrl : function(url) {
+        application.redisClient.get(url, function(err, reply) {
             if (err) {
                 console.log('Error: ' + err);
                 throw err;
             }
 
-            // the link is not present into redis
+            // the url is not present into redis
             if (reply === null) {
-                crawler.crawlLink(link);
+                crawler.crawlUrl(url);
             } else {
-                broker.sendLinkStatus(link, reply);
+                broker.sendUrlStatus(url, reply);
             }
         });
     }
@@ -72,10 +72,10 @@ var broker = {
         this.listen();
     },
     
-    // emit the link status on the socket
-    sendLinkStatus : function(link, status) {
-        this.socket.emit(constants.linkStatus,
-            {'link' : link, 'status' : status }
+    // emit the url status on the socket
+    sendUrlStatus : function(url, status) {
+        this.socket.emit(constants.urlStatus,
+            {'url' : url, 'status' : status }
         );
     },
     
@@ -90,10 +90,10 @@ var broker = {
         this.socketIo.on('connection', (function (socket) {
 
             this.socket = socket;
-            socket.on(constants.checkLinkEvent, function(data) {
+            socket.on(constants.checkUrlEvent, function(data) {
 
                 if (undefined !== data.href) {
-                    checker.checkLink(data.href);
+                    checker.checkUrl(data.href);
                 }
             });
         }).bind(this));
