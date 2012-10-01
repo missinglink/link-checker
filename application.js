@@ -8,9 +8,9 @@ var constants = {
 var crawler = {
     
     // crawl an url passed using an HTTP client
-    crawlUrl : function(url) {
+    crawlUrl : function(url) {     
         var defaultPort   = 80;
-        var defaultMethod = 'HEAD';
+        var defaultMethod = 'GET';
 //        var defaultProtocol = 'http';
         var urlParts = require('url').parse(url, true);
 
@@ -137,3 +137,8 @@ application.initRedis();
 //var server  = http.createServer(app);
 //app.use( '/', express.static(__dirname + '/public') );
 //app.listen(3001);
+
+
+
+
+//console.log(require('http').STATUS_CODES);
