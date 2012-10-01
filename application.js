@@ -1,32 +1,44 @@
 var constants = {
     checkLinkEvent : 'link.add',
-    linkStatus     : 'link.status'
+    linkStatus     : 'link.status',
+    dnsErrorStatus : 500,
+    localhost      : 'localhost'
 };
 
 var crawler = {
+    
+    // crawl al link passed using an HTTP client
     crawlLink : function(link) {
-        var httpClient    = require('http');
         var defaultPort   = 80;
         var defaultMethod = 'HEAD';
 //        var defaultProtocol = 'http';
-        
         var url = require('url').parse(link, true);
-        var options = {
-            hostname: url.hostname,
-            port: (url.port)    ?   url.port    :   defaultPort,
-            path: (url.path)    ?   url.path    :   '/',
-            method: defaultMethod,
-            'User-Agent' : '*'
-        };
 
-        var req = httpClient.request(options, function(res) {        
-            application.sendLinkStatus(link, res.statusCode);
+        var httpClient = require('http');
+            var options = {
+                hostname: url.hostname,
+                port: (url.port)    ?   url.port    :   defaultPort,
+                path: (url.path)    ?   url.path    :   '/',
+                method: defaultMethod
+            };
 
-            // and store it into redis as cache for future requests
-            application.redisClient.set(link, res.statusCode);
-        });
+        var clientRequest = httpClient.request(options, (function(response) {
+            this.handleResponse(link, response.statusCode);
+        }).bind(this));
 
-        req.end();
+        clientRequest.on('error', (function(e) {
+            this.handleResponse(link, constants.dnsErrorStatus);
+        }).bind(this));
+
+        clientRequest.end();
+    },
+    
+    // handle HTTP response in a central place
+    handleResponse: function(link, statusCode) {
+        broker.sendLinkStatus(link, statusCode);
+
+        // and store it into redis as cache for future requests
+        application.redisClient.set(link, statusCode);
     }
 };
 
@@ -35,26 +47,29 @@ var checker = {
         application.redisClient.get(link, function(err, reply) {
             if (err) {
                 console.log('Error: ' + err);
+                throw err;
             }
 
             // the link is not present into redis
             if (reply === null) {
                 crawler.crawlLink(link);
             } else {
-                application.sendLinkStatus(link, reply);
+                broker.sendLinkStatus(link, reply);
             }
         });
     }
 };
 
-var application = {
+var broker = {
     defaultSocketPort : 3000,
-    redisClient : undefined,
     socketIo : undefined,    
     socket : undefined,
     
-    init: function(socketPort){
+    // initialize the broker
+    init : function(socketPort) {
         this.defaultSocketPort = socketPort;
+        this.initSocketIo();
+        this.listen();
     },
     
     // emit the link status on the socket
@@ -62,6 +77,37 @@ var application = {
         this.socket.emit(constants.linkStatus,
             {'link' : link, 'status' : status }
         );
+    },
+    
+    // initialize the socket
+    initSocketIo : function() {
+        this.socketIo = require('socket.io').listen(this.defaultSocketPort);
+        this.socketIo.set( 'log level', 0 );
+    },
+    
+    // listen on client connection and client emits on the socket
+    listen : function() {
+        this.socketIo.on('connection', (function (socket) {
+
+            this.socket = socket;
+            socket.on(constants.checkLinkEvent, function(data) {
+
+                if (undefined !== data.href) {
+                    checker.checkLink(data.href);
+                }
+            });
+        }).bind(this));
+    }
+};
+
+var application = {
+    redisClient : undefined,
+    broker : undefined,
+    
+    // initialize the application
+    init: function(broker, socketPort){
+        broker.init(socketPort);
+        this.broker = broker;
     },
     
     // initialize and connect to a REDIS server
@@ -78,33 +124,11 @@ var application = {
         this.redisClient.on('error', function (err) {
             console.log('Error ' + err);
         });
-    },
-    
-    // initialize the socket
-    initSocketIo : function() {
-        this.socketIo = require('socket.io').listen(this.defaultSocketPort);
-        this.socketIo.set( 'log level', 0 );
-    },
-    
-    //listen on connection and emits on the socket
-    listen : function() {
-        this.socketIo.on('connection', (function (socket) {
-
-            this.socket = socket;
-            socket.on(constants.checkLinkEvent, function(data) {
-
-                if (undefined !== data.href) {
-                    checker.checkLink(data.href);
-                }
-            });
-        }).bind(this));
     }
 };
 
-application.init(3000);
+application.init(broker, 3000);
 application.initRedis();
-application.initSocketIo();
-application.listen();
 
 //// Mini Web Server
 //var express = require('express');
