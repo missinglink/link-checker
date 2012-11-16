@@ -1,7 +1,6 @@
 httpClient    = require 'http'
 defaultPort   = 80
 defaultMethod = 'GET'
-# defaultProtocol = 'http'
 
 class Crawler
 

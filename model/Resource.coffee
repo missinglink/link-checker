@@ -10,6 +10,7 @@ class Resource
     validator.check(uri, 'Invalid uri').isUrl()
 
     uri = addDefaultProtocol uri
+    uri = cutAfterHash uri
 
     urlParts = url.parse uri, true
     if urlParts.hostname? then @hostname = urlParts.hostname
@@ -37,3 +38,7 @@ addDefaultProtocol = (uri) ->
   regex = new RegExp "^[a-z]+:\/\/"
   return Resource.defaultProtocol + '//' + uri unless regex.test uri
   return uri
+
+cutAfterHash = (uri) ->
+  parts = uri.split('#')
+  return parts[0]

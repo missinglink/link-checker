@@ -11,6 +11,7 @@ describe 'Resource', ->
     'www.domain.com:80'
     'https://www.domain.com:443'
     '12.32.34.254'
+    'http://askubuntu.com/questions/12434534534/answers#comment12'
   ]
 
   invalidUrls = [
