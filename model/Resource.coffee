@@ -10,18 +10,19 @@ class Resource
     validator.check(uri, 'Invalid uri').isUrl()
 
     uri = addDefaultProtocol uri
-    uri = cutAfterHash uri
 
     urlParts = url.parse uri, true
-    if urlParts.hostname? then @hostname = urlParts.hostname
-
+    throw new Error 'invalid hosrtname' unless urlParts.hostname
+    
+    @hostname = urlParts.hostname
     @protocol = urlParts.protocol || Resource.defaultProtocol
-    if urlParts.port? then @port = urlParts.port
+    @port = urlParts.port || Resource.defaultPort
+    @path = urlParts.path || Resource.defaultPath
 
     @uri = uri
 
   setStatusCode: (statusCode) ->
-    throw new Error 'Invalid status code' unless statusCode in Object.keys http.STATUS_CODES
+    throw new Error 'Invalid status code' unless ''+statusCode in Object.keys http.STATUS_CODES
 
     @statusCode = statusCode
 
@@ -31,6 +32,12 @@ class Resource
     @lastCheckingDate = date
 
 Resource.defaultProtocol = 'http:'
+Resource.defaultPort     = 80
+Resource.defaultPath     = '/'
+
+Resource.filterAnchors = (uri) ->
+  parts = uri.split('#')
+  return parts[0]
 
 module.exports = Resource
 
@@ -38,7 +45,3 @@ addDefaultProtocol = (uri) ->
   regex = new RegExp "^[a-z]+:\/\/"
   return Resource.defaultProtocol + '//' + uri unless regex.test uri
   return uri
-
-cutAfterHash = (uri) ->
-  parts = uri.split('#')
-  return parts[0]

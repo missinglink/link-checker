@@ -1,14 +1,9 @@
-redis    = require 'redis'
 socketIO = require 'socket.io'
 Crawler  = require '../../service/Crawler'
+Resource = require '../../model/Resource'
+storage  = require '../../service/storage/Redis'
 
-#init redis
-redisClient = redis.createClient()
-console.log 'impossible to connect to redis' unless redisClient?
-
-# error handling
-redisClient.on 'error', (err) ->
-  console.log 'REDIS error: ' + err
+storage.init()
 
 #init socket.io
 io = socketIO.listen 3000
@@ -17,26 +12,35 @@ io.set 'log level', 0
 #listen on connection
 io.on 'connection', (socket) ->
 
-  #listen to url added
+  originDomain = socket.manager.handshaken[socket.id].headers.origin
+  
   socket.on 'url.add', (data) ->
 
     if data?.href?
 
-      # handle socket response      
-      sendUrlStatus = (url, status) ->
-        socket.emit 'url.status', 'url': url, 'status': status
+      requestedUrl = Resource.filterAnchors data.href
+
+      # TODO 
+      # add the request host as hostname if the uri is relative
+
+      # responde via socket
+      sendUrlStatus = (resource) ->
+        socket.emit 'url.status', 'url': data.href, 'status': resource.statusCode
       
-      # handle persistence
-      storeUrl = (url, statusCode) ->
-        redisClient.set url, statusCode
+      # store the uri
+      storeUrl = (resource) -> storage.save resource
 
-      # fetching from persistence object
-      redisClient.get data.href, (err, reply) ->
+      lookupCallback = (err, resource) ->
+        if err? then throw new Error err
 
-        unless reply?
+        if resource?
+          # send back the cached URL status
+          sendUrlStatus resource
+        else
+          resource = new Resource requestedUrl
           # crawl the new URL
           crawler = new Crawler
-          crawler.crawlUrl data.href, storeUrl, sendUrlStatus
-        else
-          # send back the cached URL status
-          sendUrlStatus data.href, reply
+          crawler.crawlUrl resource, storeUrl, sendUrlStatus
+
+      # fetching from persistence object
+      storage.lookup requestedUrl, lookupCallback

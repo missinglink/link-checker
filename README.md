@@ -11,13 +11,13 @@ Install/Update Packages
 Run the example server
 ---------------------
 
-    clear && node server.js
+    npm start
 
 Example usage
 
     http://localhost:3000/check?links=["http://www.example.com"]
 
-Auto-Compile coffee scripts
+reun test
 ---------------------------
 
-    sh moka.sh
+    npm test

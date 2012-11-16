@@ -1,25 +1,23 @@
 httpClient    = require 'http'
-defaultPort   = 80
+Resource      = require '../model/Resource'
 defaultMethod = 'GET'
 
 class Crawler
 
   # crawl an url passed using an HTTP client
-  crawlUrl: (url, storeUrl, sendUrlStatus) ->    
-    urlParts = require('url').parse url, true
-
-    options =
-      hostname: urlParts.hostname,
-      port: urlParts.port || defaultPort,
-      path: urlParts.path || '/',
-      method: defaultMethod
-
-    clientRequest = httpClient.request options, (res) ->
-      sendUrlStatus url, res.statusCode
-      storeUrl url, statusCode
+  crawlUrl: (resource, storeUrl, sendUrlStatus) ->
+    throw new Error 'invalid resource type' unless resource instanceof Resource
+    
+    clientRequest = httpClient.request resource, (res) ->
+      resource.setStatusCode res.statusCode
+      resource.setLastCheckingDate new Date()
+      sendUrlStatus resource
+      storeUrl resource
 
     clientRequest.on 'error', (e) =>
-      sendUrlStatus url, 500
+      resource.setStatusCode 500
+      sendUrlStatus resource
+      storeUrl resource
 
     clientRequest.end()
 

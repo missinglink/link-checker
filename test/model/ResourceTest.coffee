@@ -18,6 +18,7 @@ describe 'Resource', ->
     'asdfsafsdfsdffds'
     'http:wwwsdf'
     '255.0.0.1'
+    'http://%%%%%/sdfdgfsdfg'
   ]
 
   describe 'constructor', ->
