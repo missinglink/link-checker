@@ -2,10 +2,23 @@
   "name": "link-checker",
   "preferGlobal": "true",
   "version": "0.0.1",
+  "scripts": {
+    "prestart": "coffee --compile -o public/lib/ public/src/ && browserify public/lib/index.js -o public/lib/app.js",
+    "start": "coffee src/server/app.coffee",
+    "front-test": "npm run prestart && mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
+    "back-test": "mocha test --recursive --reporter spec --compilers coffee:coffee-script",
+    "test": "npm run back-test && npm run front-test"
+  },
   "dependencies" : {
     "coffee-script" : "*",
     "redis" : "*",
     "jitter" : "*",
-    "socket.io" : "0.9.10"
+    "socket.io" : "0.9.10",
+    "should": "*",
+    "validator": "0.4.16"
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
   }
 }

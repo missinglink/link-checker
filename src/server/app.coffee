@@ -1,11 +1,10 @@
 redis    = require 'redis'
 socketIO = require 'socket.io'
-Crawler  = require '../service/Crawler'
+Crawler  = require '../../service/Crawler'
 
 #init redis
 redisClient = redis.createClient()
-unless redisClient?
-  console.log 'impossible to connect to redis'
+console.log 'impossible to connect to redis' unless redisClient?
 
 # error handling
 redisClient.on 'error', (err) ->
