@@ -14,7 +14,8 @@
     "jitter" : "*",
     "socket.io" : "0.9.10",
     "should": "*",
-    "validator": "0.4.16"
+    "validator": "0.4.16",
+    "mongodb": "git://github.com/fabriziomoscon/node-mongodb-native#master"
   },
   "engines": {
     "node": "0.8.x",

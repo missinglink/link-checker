@@ -1,9 +1,27 @@
 socketIO = require 'socket.io'
 Crawler  = require '../../service/Crawler'
 Resource = require '../../model/Resource'
-storage  = require '../../service/storage/Redis'
+cache  = require '../../service/cache/Redis'
 
-storage.init()
+cache.init()
+
+app = {}
+env = process.env.NODE_ENV || 'development';
+
+# init environment specific configurations
+switch env
+  when 'development'
+    environment = require '../config/environment/development'
+  when 'staging'
+    environment = require '../config/environment/staging'
+  when 'production'
+    environment = require '../config/environment/production'
+  else throw new Error 'environment ' + env + ' not defined'
+environment app
+
+# init database
+db = require '../config/db'
+db.init app
 
 #init socket.io
 io = socketIO.listen 3000
@@ -13,7 +31,7 @@ io.set 'log level', 0
 io.on 'connection', (socket) ->
 
   originDomain = socket.manager.handshaken[socket.id].headers.origin
-  
+
   socket.on 'url.add', (data) ->
 
     if data?.href?
@@ -28,7 +46,7 @@ io.on 'connection', (socket) ->
         socket.emit 'url.status', 'url': data.href, 'status': resource.statusCode
       
       # store the uri
-      storeUrl = (resource) -> storage.save resource
+      storeUrl = (resource) -> cache.save resource
 
       lookupCallback = (err, resource) ->
         if err? then throw new Error err
@@ -43,4 +61,4 @@ io.on 'connection', (socket) ->
           crawler.crawlUrl resource, storeUrl, sendUrlStatus
 
       # fetching from persistence object
-      storage.lookup requestedUrl, lookupCallback
+      cache.lookup requestedUrl, lookupCallback
