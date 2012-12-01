@@ -1,21 +1,27 @@
 {
   "name": "link-checker",
-  "preferGlobal": "true",
+  "preferGlobal": "fasle",
   "version": "0.0.1",
+  "description": "LinkChecker",
+  "contributors": [],
   "scripts": {
-    "start": "coffee src/server/app.coffee",
-    "front-test": "npm run prestart && mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
-    "back-test": "mocha test --recursive --reporter spec --compilers coffee:coffee-script",
-    "test": "npm run back-test && npm run front-test"
+    "start": "export NODE_PATH=`pwd` && coffee src/server/app.coffee",
+    "front-test": "export NODE_PATH=`pwd` && npm run prestart && mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
+    "back-test": "export NODE_PATH=`pwd` && mocha test --recursive --reporter spec --compilers coffee:coffee-script",
+    "test": "export NODE_PATH=`pwd` && npm run back-test && npm run front-test"
   },
   "dependencies" : {
     "coffee-script" : "*",
     "redis" : "*",
     "jitter" : "*",
     "socket.io" : "0.9.10",
-    "should": "*",
     "validator": "0.4.16",
-    "mongodb": "git://github.com/fabriziomoscon/node-mongodb-native#master"
+    "mongodb": "1.1.11"
+  },
+  "devDependencies": {
+    "mocha": "1.7.x",
+    "assert": "0.4.x",
+    "should": "1.2.x"
   },
   "engines": {
     "node": "0.8.x",

@@ -1,10 +1,10 @@
 should = require 'should'
-Resource = require '../../model/Resource'
+Resource = require 'model/Resource'
 http = require 'http'
 
 describe 'Resource', ->
 
-  validUrls = [
+  validUris = [
     'http://www.domain.com'
     'http://www.domain.com/test.php?hello=world'
     'www.domain.com'
@@ -35,7 +35,7 @@ describe 'Resource', ->
         ( -> new Resource url).should.throw 'Invalid uri'
 
     it 'should accept valid parameters', ->
-      for url in validUrls
+      for url in validUris
         resource = new Resource url
 
     it 'should set the default protocol if not specified', ->
@@ -44,7 +44,7 @@ describe 'Resource', ->
 
   describe 'setStatusCode', ->
 
-    resource = new Resource validUrls[0]
+    resource = new Resource validUris[0]
 
     it 'should not accept invalid parameters', ->
       ( -> resource.setStatusCode()).should.throw 'Invalid status code'
@@ -63,7 +63,7 @@ describe 'Resource', ->
 
   describe 'setLastCheckingDate', ->
 
-    resource = new Resource validUrls[0]
+    resource = new Resource validUris[0]
 
     it 'should not accept invalid parameters', ->
       ( -> resource.setLastCheckingDate()).should.throw 'Invalid date'

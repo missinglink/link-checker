@@ -2,7 +2,7 @@ module.exports = (app) ->
 
   console.log 'Loading config: DEVELOPMENT'
   
-  app.config = require('../common').config.development
+  app.config = require('src/config/common').config.development
   
   app.mongoLogger =
     error: (message, object) ->

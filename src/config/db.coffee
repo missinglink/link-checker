@@ -1,4 +1,4 @@
-MongoGateway = require '../../lib/MongoGateway'
+MongoGateway = require 'lib/MongoGateway'
 
 module.exports.init = (app) ->
 

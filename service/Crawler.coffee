@@ -1,5 +1,5 @@
 httpClient    = require 'http'
-Resource      = require '../model/Resource'
+Resource      = require 'model/Resource'
 defaultMethod = 'GET'
 
 class Crawler

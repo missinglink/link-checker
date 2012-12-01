@@ -1,6 +1,6 @@
 # assert = require 'assert'
 should       = require 'should'
-ClassChecker = require '../../../lib/utils/classChecker'
+ClassChecker = require 'lib/utils/classChecker'
 
 describe 'Class checker', ->
 

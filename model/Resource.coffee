@@ -1,7 +1,7 @@
 http         = require 'http'
 url          = require 'url'
 validator    = require 'validator'
-classChecker = require '../lib/utils/classChecker'
+classChecker = require 'lib/utils/classChecker'
 
 class Resource
 

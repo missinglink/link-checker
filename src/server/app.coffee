@@ -1,7 +1,7 @@
 socketIO = require 'socket.io'
-Crawler  = require '../../service/Crawler'
-Resource = require '../../model/Resource'
-cache  = require '../../service/cache/Redis'
+Crawler  = require 'service/Crawler'
+Resource = require 'model/Resource'
+cache    = require 'service/cache/Redis'
 
 cache.init()
 
@@ -11,11 +11,11 @@ env = process.env.NODE_ENV || 'development';
 # init environment specific configurations
 switch env
   when 'development'
-    environment = require '../config/environment/development'
+    environment = require 'src/config/environment/development'
   when 'staging'
-    environment = require '../config/environment/staging'
+    environment = require 'src/config/environment/staging'
   when 'production'
-    environment = require '../config/environment/production'
+    environment = require 'src/config/environment/production'
   else throw new Error 'environment ' + env + ' not defined'
 environment app
 
