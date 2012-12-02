@@ -1,29 +1,22 @@
 redis = require 'redis'
 
-class Storage
+class RedisCache
 
   redisClient = undefined
 
   init: () =>
     @redisClient = redis.createClient()
-    console.log 'impossible to connect to redis' unless redisClient?
+    throw new Error 'impossible to connect to redis' unless @redisClient?
 
     @redisClient.on 'error', (err) ->
-      console.log 'REDIS error: ' + err
+      throw new Error 'REDIS error: ' + err
 
-  save: (resource) =>
-    hash =
-      "statusCode": resource.statusCode 
-      "hostname": resource.hostname 
-      "protocol": resource.protocol
-      "port": resource.port
-      "path": resource.path
-      "lastCheckingDate": resource.lastCheckingDate
-    console.log hash
-    @redisClient.hmset resource.uri, hash, (err, data) ->
+  save: (uri, statusCode) =>
+    @redisClient.set uri, statusCode, (err, data) ->
       if err? then throw new Error err
+      # data contains OK
 
   lookup: (requestedUrl, callback) =>
-    @redisClient.hgetall requestedUrl, callback
+    @redisClient.get requestedUrl, callback
 
-module.exports = new Storage
+module.exports = new RedisCache

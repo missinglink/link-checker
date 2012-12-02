@@ -1,9 +1,12 @@
 socketIO = require 'socket.io'
 Crawler  = require 'service/Crawler'
 Resource = require 'model/Resource'
-cache    = require 'service/cache/Redis'
+Cache    = require 'service/cache/Redis'
+Source   = require 'repository/source/mongo/Resource'
+ResourceMapper = require 'mapper/ResourceMapper'
+ResourceRepository = require 'repository/Resource'
 
-cache.init()
+Cache.init()
 
 app = {}
 env = process.env.NODE_ENV || 'development';
@@ -20,12 +23,15 @@ switch env
 environment app
 
 # init database
-db = require '../config/db'
+db = require 'src/config/db'
 db.init app
 
 #init socket.io
 io = socketIO.listen 3000
 io.set 'log level', 0
+
+resRepo = new ResourceRepository Source, ResourceMapper
+crawlerService = new Crawler resRepo, Cache
 
 #listen on connection
 io.on 'connection', (socket) ->
@@ -39,26 +45,10 @@ io.on 'connection', (socket) ->
       requestedUrl = Resource.filterAnchors data.href
 
       # TODO 
-      # add the request host as hostname if the uri is relative
+      # add the request host as hostname if the url is relative
 
       # responde via socket
-      sendUrlStatus = (resource) ->
-        socket.emit 'url.status', 'url': data.href, 'status': resource.statusCode
-      
-      # store the uri
-      storeUrl = (resource) -> cache.save resource
+      sendUrlStatus = (statusCode) ->
+        socket.emit 'url.status', 'url': data.href, 'status': statusCode
 
-      lookupCallback = (err, resource) ->
-        if err? then throw new Error err
-
-        if resource?
-          # send back the cached URL status
-          sendUrlStatus resource
-        else
-          resource = new Resource requestedUrl
-          # crawl the new URL
-          crawler = new Crawler
-          crawler.crawlUrl resource, storeUrl, sendUrlStatus
-
-      # fetching from persistence object
-      cache.lookup requestedUrl, lookupCallback
+      crawlerService.lookup requestedUrl, sendUrlStatus
