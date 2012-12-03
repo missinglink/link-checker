@@ -1,13 +1,14 @@
-http         = require 'http'
-url          = require 'url'
-validator    = require 'validator'
-classChecker = require 'lib/utils/classChecker'
+http          = require 'http'
+url           = require 'url'
+validator     = require 'validator'
+classChecker  = require 'lib/utils/classChecker'
+absolutizeURI = require 'lib/utils/absolutizeURI'
 
 class Resource
 
   constructor: (uri) ->
-    throw new Error 'Invalid uri' unless typeof uri is 'string'
-    validator.check(uri, 'Invalid uri').isUrl()
+    throw new Error 'Invalid uri: ' + uri unless typeof uri is 'string'
+    validator.check(uri, 'Invalid uri: ' + uri).isUrl()
 
     uri = addDefaultProtocol uri
 
@@ -35,9 +36,20 @@ Resource.defaultProtocol = 'http:'
 Resource.defaultPort     = 80
 Resource.defaultPath     = '/'
 
-Resource.filterAnchors = (uri) ->
-  parts = uri.split('#')
-  return parts[0]
+Resource.allow = (requestedUrl) ->
+  if requestedUrl.match /^(http:|https:|ftp:)?\/\/.*$/ then return true
+  return false
+
+Resource.removeFragment = (uri) ->
+  urlParts = uri.split('#')
+  return urlParts[0]
+
+Resource.addTrailingSlash = (uri) ->
+  uri = uri + '/' unless uri.charAt(uri.length) is '/'
+  return uri
+
+Resource.getAbsoluteURI = (requestedUrl, originalDomain) ->
+  return absolutizeURI originalDomain, requestedUrl
 
 module.exports = Resource
 

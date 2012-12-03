@@ -36,19 +36,20 @@ crawlerService = new Crawler resRepo, Cache
 #listen on connection
 io.on 'connection', (socket) ->
 
-  originDomain = socket.manager.handshaken[socket.id].headers.origin
+  originDomain = socket.manager.handshaken[socket.id].headers.referer
 
   socket.on 'url.add', (data) ->
 
     if data?.href?
-
-      requestedUrl = Resource.filterAnchors data.href
-
-      # TODO 
-      # add the request host as hostname if the url is relative
+      
+      absoluteUri = Resource.getAbsoluteURI data.href, originDomain
+      cleanUri = Resource.removeFragment absoluteUri
+      cleanUri = Resource.addTrailingSlash cleanUri
 
       # responde via socket
       sendUrlStatus = (statusCode) ->
         socket.emit 'url.status', 'url': data.href, 'status': statusCode
 
-      crawlerService.lookup requestedUrl, sendUrlStatus
+      sendUrlStatus 200 unless Resource.allow data.href
+
+      crawlerService.lookup cleanUri, sendUrlStatus
