@@ -1,13 +1,16 @@
 httpClient    = require 'http'
 Resource      = require 'model/Resource'
+ResourceRepository = require 'repository/Resource'
+Cache    = require 'service/cache/Redis'
 defaultMethod = 'GET'
 
 class Crawler
 
-  constructor: (resourceRepository, resourceCache) ->
-    throw new Error 'Invalid param' unless resourceRepository?
+  constructor: (resourceCache = Cache, resourceRepository = ResourceRepository) ->
     throw new Error 'Invalid param' unless resourceCache?
-    @resourceRepository = resourceRepository
+    throw new Error 'Invalid param' unless resourceRepository?
+    resourceCache.init()
+    @resourceRepository = new resourceRepository
     @resourceCache = resourceCache
 
   cacheStatusCode: (uri, statusCode) ->

@@ -1,12 +1,6 @@
 socketIO = require 'socket.io'
 Crawler  = require 'service/Crawler'
 Resource = require 'model/Resource'
-Cache    = require 'service/cache/Redis'
-Source   = require 'repository/source/mongo/Resource'
-ResourceMapper = require 'mapper/ResourceMapper'
-ResourceRepository = require 'repository/Resource'
-
-Cache.init()
 
 app = {}
 env = process.env.NODE_ENV || 'development';
@@ -30,8 +24,7 @@ db.init app
 io = socketIO.listen 3000
 io.set 'log level', 0
 
-resRepo = new ResourceRepository Source, ResourceMapper
-crawlerService = new Crawler resRepo, Cache
+crawlerService = new Crawler
 
 #listen on connection
 io.on 'connection', (socket) ->

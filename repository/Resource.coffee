@@ -1,8 +1,11 @@
+Source         = require 'repository/source/mongo/Resource'
+ResourceMapper = require 'mapper/ResourceMapper'
+
 class ResourceRepository
 
-  constructor: (source, mapper) ->
-    throw new Error 'Invalid param' unless source? and source instanceof Function
-    throw new Error 'Invalid param' unless mapper? and mapper instanceof Function
+  constructor: (source = Source, mapper = ResourceMapper) ->
+    throw new Error 'Invalid param' unless source instanceof Function
+    throw new Error 'Invalid param' unless mapper instanceof Function
     @source = source
     @mapper = mapper
 
