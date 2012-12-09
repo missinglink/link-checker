@@ -16,7 +16,8 @@
     "jitter" : "*",
     "socket.io" : "0.9.10",
     "validator": "0.4.16",
-    "mongodb": "1.1.11"
+    "mongodb": "1.1.11",
+    "async_bench": "*"
   },
   "devDependencies": {
     "mocha": "1.7.x",

@@ -1,11 +1,10 @@
 Resource = require 'model/Resource'
+DateMapper = require 'mapper/type/DateMapper'
 
 class ResourceMapper
 
   @marshall: (model) ->
     
-    return null if data is null
-
     throw new Error 'Invalid Model' unless model instanceof Resource
 
     data = {}
@@ -14,7 +13,9 @@ class ResourceMapper
     data.protocol = model.protocol
     data.path = model.path
     data.uri = model.uri
-    data.lastCheckingDate = model.lastCheckingDate
+    if model.httpVersion then data.httpVersion = model.httpVersion
+    if model.server then data.server = model.server
+    data.lastCheckingDate = DateMapper.marshall model.lastCheckingDate
 
     return data
 
@@ -26,7 +27,9 @@ class ResourceMapper
 
     resource = new Resource data.uri
     resource.setStatusCode data.statusCode
-    resource.setLastCheckingDate data.lastCheckingDate
+    resource.setLastCheckingDate DateMapper.unmarshall data.lastCheckingDate
+    resource.setHTTPVersion data.httpVersion
+    if data.server then resource.setServer data.server
 
     return resource
 

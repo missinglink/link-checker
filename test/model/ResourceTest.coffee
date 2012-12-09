@@ -61,6 +61,18 @@ describe 'Resource', ->
       for status in Object.keys http.STATUS_CODES
         resource.setStatusCode(status).should.equal status
 
+  describe 'setHTTPVersion', ->
+    resource = new Resource validUris[0]
+    it 'should set a valid version', ->
+      resource.setHTTPVersion '1.1'
+      resource.httpVersion.should.equal '1.1'
+
+  describe 'setServer', ->
+    resource = new Resource validUris[0]
+    it 'should set a valid server', ->
+      resource.setServer 'nginx'
+      resource.server.should.equal 'nginx'
+
   describe 'setLastCheckingDate', ->
 
     resource = new Resource validUris[0]

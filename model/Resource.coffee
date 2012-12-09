@@ -7,8 +7,8 @@ absolutizeURI = require 'lib/utils/absolutizeURI'
 class Resource
 
   constructor: (uri) ->
-    throw new Error 'Invalid uri: ' + uri unless typeof uri is 'string'
-    validator.check(uri, 'Invalid uri: ' + uri).isUrl()
+    throw new Error 'Invalid uri' unless typeof uri is 'string'
+    validator.check(uri, 'Invalid uri').isUrl()
 
     uri = addDefaultProtocol uri
 
@@ -26,6 +26,12 @@ class Resource
     throw new Error 'Invalid status code' unless ''+statusCode in Object.keys http.STATUS_CODES
 
     @statusCode = statusCode
+
+  setHTTPVersion: (version) ->
+    @httpVersion = version        
+
+  setServer: (server) ->
+    @server = server    
 
   setLastCheckingDate: (date) ->
     throw new Error 'Invalid date' unless classChecker(date) is 'date'

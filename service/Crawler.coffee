@@ -25,8 +25,10 @@ class Crawler
     throw new Error 'invalid resource type' unless resource instanceof Resource
     
     clientRequest = httpClient.request resource, (res) =>
+      resource.setHTTPVersion res.httpVersion
       resource.setStatusCode res.statusCode
       resource.setLastCheckingDate new Date()
+      if res.headers?.server? then resource.setServer res.headers.server
       sendUrlStatus resource.statusCode
       @cacheStatusCode resource.uri, resource.statusCode
       @storeResource resource
