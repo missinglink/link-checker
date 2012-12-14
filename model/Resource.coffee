@@ -42,6 +42,15 @@ Resource.defaultProtocol = 'http:'
 Resource.defaultPort     = 80
 Resource.defaultPath     = '/'
 
+Resource.isAbsolute = (uri) ->
+  return false unless typeof uri is 'string'
+  p = url.parse uri, true
+  return false unless p.protocol
+  return false unless p.hostname
+  return false unless p.pathname
+  return false unless p.pathname.length > 1
+  return true
+
 Resource.allow = (requestedUrl) ->
   if requestedUrl.match /^(http:|https:|ftp:)?\/\/.*$/ then return true
   return false

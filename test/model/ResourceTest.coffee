@@ -92,6 +92,39 @@ describe 'Resource', ->
       now = new Date()
       resource.setLastCheckingDate(now).should.equal now
 
+  describe 'isAbsolute()', ->
+    absoluteUrls = [
+      'http://www.domain.com/logo'
+      'http://www.domain.com/test.php?hello=world'
+      'https://www.domain.com/logo'
+      'https://www.domain.com:80/logo'
+      'https://www.domain.com:443/logo'
+      'https://12.32.34.254/logo'
+      'http://askubuntu.com/questions/12434534534/answers#comment12'
+    ]
+
+    relativeUrls = [
+      '/logo.gif'
+      '../index.php'
+      '/src/img/./../logo.png'
+    ]
+
+    it 'should return true only for absoulte urls', ->
+      for url in absoluteUrls
+        Resource.isAbsolute(url).should.be.true
+
+    it 'should return false for non-absoulte urls', ->
+      Resource.isAbsolute().should.be.false
+      Resource.isAbsolute(null).should.be.false
+      Resource.isAbsolute(undefined).should.be.false
+      Resource.isAbsolute(true).should.be.false
+      Resource.isAbsolute(1.1).should.be.false
+      Resource.isAbsolute([]).should.be.false
+      Resource.isAbsolute({}).should.be.false
+
+      for url in relativeUrls
+        Resource.isAbsolute(url).should.be.false
+
   describe 'allowed()', ->
     it 'should not allow mailto links', ->
       Resource.allow('mailto:').should.be.false
