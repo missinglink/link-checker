@@ -1,4 +1,4 @@
-httpClient    = require 'http'
+http    = require 'http'
 Resource      = require 'model/Resource'
 ResourceRepository = require 'repository/Resource'
 Cache    = require 'service/cache/Redis'
@@ -24,11 +24,14 @@ class Crawler
   crawlUrl: (resource, sendUrlStatus) ->
     throw new Error 'invalid resource type' unless resource instanceof Resource
     
-    clientRequest = httpClient.request resource, (res) =>
+    start = Date.now()
+    clientRequest = http.request resource, (res) =>
+      
       resource.setHTTPVersion res.httpVersion
       resource.setStatusCode res.statusCode
       resource.setLastCheckingDate new Date()
       if res.headers?.server? then resource.setServer res.headers.server
+      resource.setRequestTime Date.now()-start
       sendUrlStatus resource.statusCode
       @cacheStatusCode resource.uri, resource.statusCode
       @storeResource resource

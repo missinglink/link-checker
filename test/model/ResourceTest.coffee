@@ -92,6 +92,21 @@ describe 'Resource', ->
       now = new Date()
       resource.setLastCheckingDate(now).should.equal now
 
+  describe 'setRequestTime', ->
+    resource = new Resource validUris[0]
+    it 'should not accept invalid time', ->
+      ( -> resource.setRequestTime()).should.throw 'Invalid time'
+      ( -> resource.setRequestTime(null)).should.throw 'Invalid time'
+      ( -> resource.setRequestTime(undefined)).should.throw 'Invalid time'
+      ( -> resource.setRequestTime(false)).should.throw 'Invalid time'
+      ( -> resource.setRequestTime([])).should.throw 'Invalid time'
+      ( -> resource.setRequestTime({})).should.throw 'Invalid time'
+      ( -> resource.setRequestTime('status:OK')).should.throw 'Invalid time'
+
+    it 'should accept valid time', ->
+      time = 256
+      resource.setRequestTime(time).should.equal time
+
   describe 'isAbsolute()', ->
     absoluteUrls = [
       'http://www.domain.com/logo'
@@ -150,6 +165,7 @@ describe 'Resource', ->
     it 'should always add a trailing slash when it is not present', ->
       Resource.addTrailingSlash(uri1).should.equal uri1 + '/'
       Resource.addTrailingSlash(uri1).should.equal uri1 + '/'
+
 
   describe 'getAbsoluteURI', ->
     dom1 = 'http://www.example.com/blog/'

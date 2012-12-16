@@ -17,6 +17,7 @@ describe 'ResourceMapper', ->
     httpVersion: '1.1'
     server: 'YWS'
     lastCheckingDate: today
+    requestTime: 234
 
   model = ResourceMapper.unmarshall(resourceData)
   it 'should unmarshall (data -> model)', ->
@@ -29,6 +30,7 @@ describe 'ResourceMapper', ->
     model.httpVersion.should.equal '1.1'
     model.server.should.equal 'YWS'
     model.lastCheckingDate.should.equal today
+    model.requestTime.should.equal 234
 
   it 'should marshall (model -> data)', ->
     ResourceMapper.marshall(model).should.eql resourceData

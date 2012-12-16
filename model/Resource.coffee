@@ -38,6 +38,10 @@ class Resource
 
     @lastCheckingDate = date
 
+  setRequestTime: (requestTime) ->
+    throw new Error 'Invalid time' unless typeof requestTime is 'number'
+    @requestTime = requestTime
+
 Resource.defaultProtocol = 'http:'
 Resource.defaultPort     = 80
 Resource.defaultPath     = '/'

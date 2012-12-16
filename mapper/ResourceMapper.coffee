@@ -15,6 +15,7 @@ class ResourceMapper
     if model.httpVersion then data.httpVersion = model.httpVersion
     if model.server then data.server = model.server
     data.lastCheckingDate = model.lastCheckingDate
+    data.requestTime = model.requestTime if model.requestTime
 
     return data
 
@@ -29,6 +30,7 @@ class ResourceMapper
     resource.setLastCheckingDate data.lastCheckingDate
     resource.setHTTPVersion data.httpVersion
     if data.server then resource.setServer data.server
+    resource.setRequestTime data.requestTime if data.requestTime
 
     return resource
 
