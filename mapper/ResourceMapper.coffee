@@ -1,5 +1,4 @@
 Resource = require 'model/Resource'
-DateMapper = require 'mapper/type/DateMapper'
 
 class ResourceMapper
 
@@ -15,7 +14,7 @@ class ResourceMapper
     data.uri = model.uri
     if model.httpVersion then data.httpVersion = model.httpVersion
     if model.server then data.server = model.server
-    data.lastCheckingDate = DateMapper.marshall model.lastCheckingDate
+    data.lastCheckingDate = model.lastCheckingDate
 
     return data
 
@@ -27,7 +26,7 @@ class ResourceMapper
 
     resource = new Resource data.uri
     resource.setStatusCode data.statusCode
-    resource.setLastCheckingDate DateMapper.unmarshall data.lastCheckingDate
+    resource.setLastCheckingDate data.lastCheckingDate
     resource.setHTTPVersion data.httpVersion
     if data.server then resource.setServer data.server
 

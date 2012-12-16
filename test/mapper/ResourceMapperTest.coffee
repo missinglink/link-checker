@@ -14,7 +14,7 @@ describe 'ResourceMapper', ->
     path: '/index.html'
     httpVersion: '1.1'
     server: 'YWS'
-    lastCheckingDate: 'Sun Dec 09 2012 23:04:39 GMT+0000 (GMT)'
+    lastCheckingDate: new Date 2012, 11, 20
 
   model = ResourceMapper.unmarshall(resourceData)
   it 'should unmarshall (data -> model)', ->

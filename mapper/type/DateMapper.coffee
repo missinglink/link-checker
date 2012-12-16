@@ -4,7 +4,7 @@ class DateMapper
 
     throw new Error 'Invalid Model' unless model instanceof Date
       
-    return model.toString()
+    return model.getTime()
 
   @unmarshall: (data) ->
 
