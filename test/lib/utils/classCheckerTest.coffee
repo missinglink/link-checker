@@ -1,4 +1,3 @@
-# assert = require 'assert'
 should       = require 'should'
 ClassChecker = require 'lib/utils/classChecker'
 

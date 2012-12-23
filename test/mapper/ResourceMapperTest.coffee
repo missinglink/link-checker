@@ -1,5 +1,3 @@
-should = require 'should'
-
 Resource       = require 'model/Resource'
 ResourceMapper = require 'mapper/ResourceMapper'
 MockClass      = require 'test/mocks/MockClass'
