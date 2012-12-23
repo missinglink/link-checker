@@ -82,30 +82,7 @@
     -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js"></script>
-
-    <script>
-      $(function() {
-        var socket;
-        socket = io.connect('http://localhost', {port: 3000});
-        $('body').addClass('linkchecker');
-        $('a').each(function() {
-            return socket.emit('url.add', { href: $(this).attr('href') });
-        });
-              
-        return socket.on('url.status', function(data) {
-          return $('a').each(function() {
-            if (data.url === $(this).attr('href')) {
-              return $(this).before($('<span>').
-                addClass('status').
-                addClass('HTTP' + data.status).
-                text(data.status).
-                css('font-size', $(this).css('font-size')).
-                css('line-height', $(this).css('line-height'))
-              );
-            }
-          });
-        });
-      });
-    </script>
+    <script src="/js/client.js"></script>
+    
   </body>
 </html>

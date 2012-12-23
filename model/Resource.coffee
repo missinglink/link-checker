@@ -64,23 +64,23 @@ Resource.isAbsolute = (uri) ->
   return false unless p.pathname.length > 1
   return true
 
-Resource.allow = (requestedUrl) ->
-  if requestedUrl.match /^(http:|https:|ftp:)?\/\/.*$/ then return true
+Resource.allow = (uri) ->
+  if /^(http:|https:|ftp:)?\/\/.*$/.test uri then return true
   return false
 
 Resource.removeFragment = (uri) ->
   urlParts = uri.split('#')
   return urlParts[0]
 
-Resource.getAbsoluteURI = (requestedUrl, originalDomain) ->
-  return absolutizeURI originalDomain, requestedUrl
+Resource.getAbsoluteURI = (uri, originalDomain) ->
+  return absolutizeURI originalDomain, uri
 
 module.exports = Resource
 
 Resource.addDefaultProtocol = (uri) ->
   defProtocol = Resource.defaultProtocol
-  defProtocol = Resource.defaultProtocol + '//' unless uri.match /^\/\/.*$/
-  return defProtocol + uri unless uri.match /^[a-z]+:/
+  defProtocol = Resource.defaultProtocol + '//' unless /^\/\/.*$/.test uri
+  return defProtocol + uri unless /^[a-z]+:/.test uri
   return uri
 
 # Converting the scheme and host to lower case. 

@@ -6,6 +6,24 @@ ResourceRepository = require 'repository/Resource'
 
 Cache = require 'service/cache/Redis'
 
+mapResponseToResorce = (response, resource, start) ->
+  # console.log 'URI', resource.uri
+  
+  resource.setHTTPVersion response.httpVersion if response.httpVersion
+  resource.setStatusCode response.statusCode if response.statusCode
+
+  # console.log 'STATUS', response.statusCode
+
+  resource.setLastChecked new Date()
+  if response.headers
+    resource.setServer response.headers.server if response.headers.server
+    resource.setContentType response.headers['content-type'] if response.headers['content-type']
+
+  resource.setRequestTime Date.now()-start
+
+  # console.log 'ELAPSED TIME', Date.now()-start
+
+
 class Crawler
 
   constructor: (resourceCache = Cache, resourceRepository = ResourceRepository) ->
@@ -38,32 +56,13 @@ class Crawler
 
     start = Date.now()
     clientRequest = http.request options, (res) =>
-      
-      # console.log 'URI', resource.uri
-      
-      resource.setHTTPVersion res.httpVersion
-      resource.setStatusCode res.statusCode
-
-      # console.log 'STATUS', res.statusCode
-
-      resource.setLastChecked new Date()
-      if res.headers?.server
-
-        # console.log 'HEADERS', res.headers
-
-        resource.setServer res.headers.server
-      if res.headers?['content-type']
-        resource.setContentType res.headers['content-type']
-      resource.setRequestTime Date.now()-start
-
-      # console.log 'ELAPSED TIME', Date.now()-start
-
+      mapResponseToResorce res, resource, start
       sendUrlStatus resource.status_code
       @cacheStatusCode resource.uri, resource.status_code
       @storeResource resource
 
     clientRequest.on 'error', (e) =>
-      resource.setStatusCode 500
+      mapResponseToResorce {statusCode:404}, resource, start
       sendUrlStatus resource.status_code
       @cacheStatusCode resource.uri, resource.status_code
       @storeResource resource
