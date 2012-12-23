@@ -36,8 +36,13 @@ io.on 'connection', (socket) ->
     if data?.href?
       
       absoluteUri = Resource.getAbsoluteURI data.href, originDomain
-      cleanUri = Resource.removeFragment absoluteUri
-      cleanUri = Resource.addTrailingSlash cleanUri
+
+      resource = new Resource absoluteUri, [
+        Resource.addDefaultProtocol
+        Resource.removeFragment
+        Resource.lowerCase
+        Resource.useCanonicalSlashes
+      ]
 
       # responde via socket
       sendUrlStatus = (statusCode) ->
@@ -45,4 +50,4 @@ io.on 'connection', (socket) ->
 
       sendUrlStatus 200 unless Resource.allow data.href
 
-      crawlerService.lookup cleanUri, sendUrlStatus
+      crawlerService.lookup resource, sendUrlStatus

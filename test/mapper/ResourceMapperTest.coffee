@@ -9,28 +9,30 @@ describe 'ResourceMapper', ->
   today = new Date 2012, 11, 20
 
   resourceData =
-    uri: 'http://www.yahoo.com/index.html'
-    statusCode: 200
+    status_code: 200
     hostname: 'www.yahoo.com'
     protocol: 'http:'
     path: '/index.html'
-    httpVersion: '1.1'
+    uri: 'http://www.yahoo.com/index.html'
+    http_version: '1.1'
     server: 'YWS'
-    lastCheckingDate: today
-    requestTime: 234
+    last_checked: today
+    request_time: 234
+    content_type: 'text/html'
 
   model = ResourceMapper.unmarshall(resourceData)
   it 'should unmarshall (data -> model)', ->
     model.should.be.instanceof Resource
     model.uri.should.equal 'http://www.yahoo.com/index.html'
-    model.statusCode.should.equal 200
+    model.status_code.should.equal 200
     model.hostname.should.equal 'www.yahoo.com'
     model.protocol.should.equal 'http:'
     model.path.should.equal '/index.html'
-    model.httpVersion.should.equal '1.1'
+    model.http_version.should.equal '1.1'
     model.server.should.equal 'YWS'
-    model.lastCheckingDate.should.equal today
-    model.requestTime.should.equal 234
+    model.last_checked.should.equal today
+    model.request_time.should.equal 234
+    model.content_type.should.equal 'text/html'
 
   it 'should marshall (model -> data)', ->
     ResourceMapper.marshall(model).should.eql resourceData
