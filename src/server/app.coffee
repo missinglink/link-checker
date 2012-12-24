@@ -1,3 +1,5 @@
+#require('nodetime').profile()
+
 socketIO = require 'socket.io'
 Crawler  = require 'service/Crawler'
 Resource = require 'model/Resource'
