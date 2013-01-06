@@ -192,11 +192,12 @@ describe 'Resource', ->
   describe 'allowed()', ->
     it 'should not allow mailto links', ->
       Resource.allow('mailto:').should.be.false
+    it 'should not allow ftp links', ->
+      Resource.allow('ftp://www.google.com').should.be.false
 
     it 'should allow protocols http, https, ftp, //', ->
       Resource.allow('http://www.google.com').should.be.true
       Resource.allow('https://www.google.com').should.be.true
-      Resource.allow('ftp://www.google.com').should.be.true
       Resource.allow('//ajax.google.com').should.be.true
 
   describe 'removeFragment()', ->

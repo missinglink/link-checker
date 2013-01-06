@@ -20,7 +20,7 @@ class Resource
     
     @hostname = @urlParts.hostname
     @protocol = @urlParts.protocol || Resource.defaultProtocol
-    @port = @urlParts.port || Resource.defaultPort
+    @port = @urlParts.port || Resource.defaultPort[@protocol]
     @path = @urlParts.path || Resource.defaultPath
 
     @filters = filters
@@ -52,7 +52,9 @@ class Resource
     @content_type = contentType
 
 Resource.defaultProtocol = 'http:'
-Resource.defaultPort     = 80
+Resource.defaultPort     = 
+  'http:': 80
+  'https:': 443
 Resource.defaultPath     = '/'
 
 Resource.isAbsolute = (uri) ->
@@ -65,7 +67,7 @@ Resource.isAbsolute = (uri) ->
   return true
 
 Resource.allow = (uri) ->
-  if /^(http:|https:|ftp:)?\/\/.*$/.test uri then return true
+  if /^(http:|https:)?\/\/.*$/.test uri then return true
   return false
 
 Resource.removeFragment = (uri) ->

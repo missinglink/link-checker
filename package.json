@@ -3,10 +3,13 @@
   "preferGlobal": "fasle",
   "version": "0.0.1",
   "description": "LinkChecker",
-  "contributors": [],
+  "contributors": [{
+    "name": "Fabrizio Moscon",
+    "email": "mosconfabrizio@gmail.com"
+  }],
   "scripts": {
     "start": "export NODE_PATH=`pwd` && coffee src/server/app.coffee",
-    "front-test": "export NODE_PATH=`pwd` && npm run prestart && mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
+    "front-test": "export NODE_PATH=`pwd` && mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
     "back-test": "export NODE_PATH=`pwd` && mocha test --recursive --reporter spec --compilers coffee:coffee-script",
     "test": "export NODE_PATH=`pwd` && npm run back-test && npm run front-test"
   },
@@ -14,9 +17,9 @@
     "coffee-script" : "*",
     "redis" : "*",
     "jitter" : "*",
-    "socket.io" : "0.9.10",
-    "validator": "0.4.16",
-    "mongodb": "1.1.11",
+    "socket.io" : "0.9.x",
+    "validator": "0.4.x",
+    "mongodb": "1.2.x",
     "async_bench": "*"
   },
   "devDependencies": {

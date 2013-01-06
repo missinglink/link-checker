@@ -37,16 +37,9 @@ io.on 'connection', (socket) ->
 
     if data?.href?
       
-      absoluteUri = Resource.getAbsoluteURI data.href, originDomain
+      resource = crawlerService.filterInput data.href, originDomain
 
-      resource = new Resource absoluteUri, [
-        Resource.addDefaultProtocol
-        Resource.removeFragment
-        Resource.lowerCase
-        Resource.useCanonicalSlashes
-      ]
-
-      # responde via socket
+      # send response via socket
       sendUrlStatus = (statusCode) ->
         socket.emit 'url.status', 'url': data.href, 'status': statusCode
 
