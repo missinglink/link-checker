@@ -3,12 +3,12 @@ MockClass  = require 'test/mocks/MockClass'
 
 describe 'DateMapper', ->
 
-  date = 1355495144233
+  date = '2012-12-14T14:25:44.233Z'
   model = DateMapper.unmarshall(date)
 
   it 'should unmarshall (data -> model)', ->
     ( model instanceof Date ).should.be.true
-    model.getTime().should.equal date
+    model.toISOString().should.equal date
 
   it 'should marshall (model -> data)', ->
     DateMapper.marshall(model).should.eql date

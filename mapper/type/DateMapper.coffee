@@ -3,8 +3,8 @@ class DateMapper
   @marshall: (model) ->
 
     throw new Error 'Invalid Model' unless model instanceof Date
-      
-    return model.getTime()
+    
+    return model.toISOString()
 
   @unmarshall: (data) ->
 
