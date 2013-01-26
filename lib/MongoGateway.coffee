@@ -47,74 +47,128 @@ class MongoGateway
           if err? or result is false or result is null
             throw new Error "error #{err} authenticating with: #{username}:#{password}", 500
 
+  # @param {String} targetCollection
+  # @param {Object} data
   # Options
   #   safe {true | {w:n, wtimeout:n} | {fsync:true}, default:false}, executes with a getLastError command returning the results of the command on MongoDB.
   #   continueOnError/keepGoing {Boolean, default:false}, keep inserting documents even if one document has an error, mongodb 1.9.1 >.
   #   serializeFunctions {Boolean, default:false}, serialize functions on the document.
-
+  # @param {Function} callback
   @insert: (targetCollection, data, callback) ->
     if callback? then options = safe: true
-    collection = MongoGateway.db.collection targetCollection
     
     # MongoGateway._authenticate () ->
-    collection.insert data, options, callback
+    MongoGateway.db.collection(targetCollection).
+      insert data, options, callback
 
+  # @param {String} targetCollection
+  # @param {Object} query
+  # @param {Function} callback
   @findOne: (targetCollection, query, callback) ->
+    query = MongoGateway.convertId query
+    query = MongoGateway.useObjectID query
 
-    collection = MongoGateway.db.collection targetCollection
+    MongoGateway.db.collection(targetCollection).findOne query, callback
 
-    for k, v of query
-      query._id = new ObjectID(v)  if k is '_id'
-    collection.findOne query, callback
-
+  # @param {String} targetCollection
+  # @param {Object} query
+  # @param {Object} fields
+  # @param {Object} options
   # Options
-  # limit {Number, default:0}, sets the limit of documents returned in the query.
-  # sort {Array | Object}, set to sort the documents coming back from the query. Array of indexes, [[‘a’, 1]] etc.
-  # fields {Object}, the fields to return in the query. Object of fields to include or exclude (not both), {‘a’:1}
-  # skip {Number, default:0}, set to skip N documents ahead in your query (useful for pagination).
-  # hint {Object}, tell the query to use specific indexes in the query. Object of indexes to use, {‘_id’:1}
-  # explain {Boolean, default:false}, explain the query instead of returning the data.
-  # snapshot {Boolean, default:false}, snapshot query.
-  # timeout {Boolean, default:false}, specify if the cursor can timeout.
-  # tailable {Boolean, default:false}, specify if the cursor is tailable.
-  # tailableRetryInterval {Number, default:100}, specify the miliseconds between getMores on tailable cursor.
-  # numberOfRetries {Number, default:5}, specify the number of times to retry the tailable cursor.
-  # awaitdata {Boolean, default:false} allow the cursor to wait for data, only applicable for tailable cursor.
-  # exhaust {Boolean, default:false} have the server send all the documents at once as getMore packets, not recommended.
-  # batchSize {Number, default:0}, set the batchSize for the getMoreCommand when iterating over the query results.
-  # returnKey {Boolean, default:false}, only return the index key.
-  # maxScan {Number}, Limit the number of items to scan.
-  # min {Number}, Set index bounds.
-  # max {Number}, Set index bounds.
-  # showDiskLoc {Boolean, default:false}, Show disk location of results.
-  # comment {String}, You can put a $comment field on a query to make looking in the profiler logs simpler.
-  # raw {Boolean, default:false}, Return all BSON documents as Raw Buffer documents.
-  # readPreference {String}, the preferred read preference ((Server.PRIMARY, Server.PRIMARY_PREFERRED, Server.SECONDARY, Server.SECONDARY_PREFERRED, Server.NEAREST).
-  # numberOfRetries {Number, default:5}, if using awaidata specifies the number of times to retry on timeout.
-  # partial {Boolean, default:false}, specify if the cursor should return partial results when querying against a sharded system
+  #   limit {Number, default:0}, sets the limit of documents returned in the query.
+  #   sort {Array | Object}, set to sort the documents coming back from the query. Array of indexes, [[‘a’, 1]] etc.
+  #   fields {Object}, the fields to return in the query. Object of fields to include or exclude (not both), {‘a’:1}
+  #   skip {Number, default:0}, set to skip N documents ahead in your query (useful for pagination).
+  #   hint {Object}, tell the query to use specific indexes in the query. Object of indexes to use, {‘_id’:1}
+  #   explain {Boolean, default:false}, explain the query instead of returning the data.
+  #   snapshot {Boolean, default:false}, snapshot query.
+  #   timeout {Boolean, default:false}, specify if the cursor can timeout.
+  #   tailable {Boolean, default:false}, specify if the cursor is tailable.
+  #   tailableRetryInterval {Number, default:100}, specify the miliseconds between getMores on tailable cursor.
+  #   numberOfRetries {Number, default:5}, specify the number of times to retry the tailable cursor.
+  #   awaitdata {Boolean, default:false} allow the cursor to wait for data, only applicable for tailable cursor.
+  #   exhaust {Boolean, default:false} have the server send all the documents at once as getMore packets, not recommended.
+  #   batchSize {Number, default:0}, set the batchSize for the getMoreCommand when iterating over the query results.
+  #   returnKey {Boolean, default:false}, only return the index key.
+  #   maxScan {Number}, Limit the number of items to scan.
+  #   min {Number}, Set index bounds.
+  #   max {Number}, Set index bounds.
+  #   showDiskLoc {Boolean, default:false}, Show disk location of results.
+  #   comment {String}, You can put a $comment field on a query to make looking in the profiler logs simpler.
+  #   raw {Boolean, default:false}, Return all BSON documents as Raw Buffer documents.
+  #   readPreference {String}, the preferred read preference ((Server.PRIMARY, Server.PRIMARY_PREFERRED, Server.SECONDARY, Server.SECONDARY_PREFERRED, Server.NEAREST).
+  #   numberOfRetries {Number, default:5}, if using awaidata specifies the number of times to retry on timeout.
+  #   partial {Boolean, default:false}, specify if the cursor should return partial results when querying against a sharded system
+  # @param {Function} callback
   @find: (targetCollection, query, fields, options, callback) ->
-    collection = MongoGateway.db.collection targetCollection
+    callback null, MongoGateway.db.collection(targetCollection).
+      find(query, fields, options)
 
-    cursor = collection.find query, fields, options
-    callback null, cursor
-
-  # @param targetCollection string the name of the collection to update
-  # @param whereQuery Object 
-  # @param updateQuery Object
-  # @param options Object multi, upsert, safe
-  # @param callback function
+  # @param {String} targetCollection
+  # @param {Object} whereQuery
+  # @param {Object} updateQuery
+  # @param {Object} options
+  # Options
+  #   w, {Number/String, > -1 || ‘majority’ || tag name} the write concern for the operation where &lt; 1 is no acknowlegement of write and w >= 1, w = ‘majority’ or tag acknowledges the write
+  #   wtimeout, {Number, 0} set the timeout for waiting for write concern to finish (combines with w option)
+  #   fsync, (Boolean, default:false) write waits for fsync before returning
+  #   journal, (Boolean, default:false) write waits for journal sync before returning
+  #   upsert {Boolean, default:false}, perform an upsert operation.
+  #   multi {Boolean, default:false}, update all documents matching the selector.
+  #   serializeFunctions {Boolean, default:false}, serialize functions on the document.
+  # @param {Function} callback
   @update: (targetCollection, whereQuery, updateQuery, options, callback) ->
     collection = MongoGateway.db.collection targetCollection
 
-    safe = options.safe || false
-    multi = options.multi || false
-    upsert = options.upsert || false
-    updateOptions = {safe:safe, multi:multi, upsert:upsert}
+    updateOptions =
+      multi: options.multi ?= false
+      upsert: options.upsert ?= false
+      w: options.w ?= false
+    whereQuery = MongoGateway.convertId whereQuery
+    whereQuery = MongoGateway.useObjectID whereQuery
+    updateQuery = MongoGateway.removeIdFromUpdate updateQuery
+
     collection.update whereQuery, updateQuery, updateOptions, callback
 
-  @remove: (targetCollection, docId, callback) ->
-    collection = MongoGateway.db.collection targetCollection
-    
-    collection.remove {_id: new ObjectID(docId)}, {safe: 1}, callback
+  # @param {String} targetCollection
+  # @param {Object} document
+  # @param {Object} options
+  # Options
+  #   **w**, {Number/String, > -1 || 'majority' || tag name} the write concern for the operation where < 1 is no acknowlegement of write and w >= 1, w = 'majority' or tag acknowledges the write
+  #   **wtimeout**, {Number, 0} set the timeout for waiting for write concern to finish (combines with w option)
+  #   **fsync**, (Boolean, default:false) write waits for fsync before returning
+  #   **journal**, (Boolean, default:false) write waits for journal sync before returning
+  # @param {Function} callback
+  @save: (targetCollection, document, options, callback) ->
+    MongoGateway.db.collection(targetCollection)
+      .update document, {w: options.w ?= false}, callback
+
+  # @param {String} targetCollection
+  # @param {Object} whereQuery
+  # @param {Function} callback
+  @remove: (targetCollection, whereQuery, callback) ->
+    whereQuery = MongoGateway.convertId whereQuery
+    whereQuery = MongoGateway.useObjectID whereQuery
+    MongoGateway.db.collection(targetCollection).
+      remove whereQuery, {safe: 1}, callback
+
+  # Convert id to _id
+  @convertId: (query) ->
+    for k, v of query
+      if k is 'id'
+        query._id = query.id
+        delete query.id
+    return query
+
+  # cast id to ObjectId
+  @useObjectID: (query) ->
+    if query._id
+      query._id = new ObjectID query._id unless query._id instanceof ObjectID
+    return query
+
+  # mongo native driver fails when the update contains an objectid
+  @removeIdFromUpdate: (updateQuery) ->
+    delete updateQuery['$set']._id if updateQuery['$set']?._id?
+    return updateQuery
 
 module.exports = MongoGateway
