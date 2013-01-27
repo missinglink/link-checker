@@ -11,10 +11,8 @@ class RedisCache
     @redisClient.on 'error', (err) ->
       throw new Error 'REDIS error: ' + err
 
-  save: (uri, statusCode) =>
-    @redisClient.set uri, statusCode, (err, data) ->
-      if err? then throw new Error err
-      # data contains OK
+  save: (uri, statusCode, callback) =>
+    @redisClient.set uri, statusCode, callback
 
   lookup: (requestedUrl, callback) =>
     @redisClient.get requestedUrl, callback

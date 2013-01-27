@@ -25,7 +25,8 @@
   "devDependencies": {
     "mocha": "1.7.x",
     "assert": "0.4.x",
-    "should": "1.2.x"
+    "should": "1.2.x",
+    "breakdown": "*"
   },
   "engines": {
     "node": "0.8.x",

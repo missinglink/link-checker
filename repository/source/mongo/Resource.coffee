@@ -4,7 +4,7 @@ collectionName = 'resources'
 
 class Resource
 
-  @save: (resource, callback) ->
+  @insert: (resource, callback) ->
     MongoGateway.insert collectionName, resource, callback
 
   @findOne: (query, callback) ->

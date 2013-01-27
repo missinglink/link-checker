@@ -5,6 +5,8 @@ Resource = require 'model/Resource'
 
 ResourceRepository = require 'repository/Resource'
 
+ResourceFilter = require 'filters/ResourceFilter'
+
 Cache = require 'service/cache/Redis'
 
 mapResponseToResource = (response, resource, start) ->
@@ -41,34 +43,26 @@ class Crawler
     @followAllRedirects = true
     @resources = {}
 
-  filterInput: (href, originDomain) ->
-    absoluteUri = Resource.getAbsoluteURI href, originDomain
+  cacheStatusCode: (uri, statusCode, callback) ->
+    @resourceCache.save uri, statusCode, (err, data) ->
+      if err? then return callback err, null
+      return callback new Error data, null unless data is 'OK'
 
-    return new Resource absoluteUri, [
-      Resource.addDefaultProtocol
-      Resource.removeFragment
-      Resource.lowerCase
-      Resource.useCanonicalSlashes
-    ]
+  storeResource: (resource, callback) ->
+    @resourceRepository.insert resource, (err, data) ->
+      if err? then return callback err, null
+      return callback new Error data, null unless Array.isArray data
 
-  cacheStatusCode: (uri, statusCode) ->
-    @resourceCache.save uri, statusCode
-
-  storeResource: (resource) ->
-    @resourceRepository.save resource, (err) ->
-      if err? then throw new Error err
-
-  # crawl an url passed using an HTTP client
-  crawlUrl: (resource, sendUrlStatus, prevResources=[]) ->
-    throw new Error 'invalid resource type' unless resource instanceof Resource
-    
+  crawlUrl: (resource, callback, prevResources=[]) ->
+    return callback new Error 'invalid resource', null unless resource instanceof Resource
+     
     # resource.method = 'HEAD'
     resource.method = 'GET'
 
     switch resource.protocol
       when 'http:' then httpModule = http
       when 'https:' then httpModule = https
-      else throw new Error 'protocol not supported'
+      else return callback new Error 'protocol not supported', null
 
     options =
       protocol: resource.protocol
@@ -81,54 +75,49 @@ class Crawler
 
     start = Date.now()
     clientRequest = httpModule.request options, (res) =>
-      
-      # populate the redirection resource history
       prevResources.push resource
 
       # follow redirects
       if res.statusCode >= 300 and res.statusCode < 400 and (@followAllRedirects or @followRedirect) and res.headers.location
         if @redirectsFollowed >= MAX_REDIRECTS
-          sendUrlStatus res.statusCode
+          callback null, res.statusCode
         else
           @redirectsFollowed += 1
-          @lookup @filterInput( res.headers.location, resource.hostname ), sendUrlStatus, prevResources
+          @lookup new Resource( ResourceFilter.filter(res.headers.location, resource.hostname) ),
+            callback,
+            prevResources
       
       else
         for resource, index in prevResources
-          # only the first resource must be notified via socket
-          if index is 0 then sendUrlStatus res.statusCode
-
+          if index is 0 then callback null, res.statusCode
           mapResponseToResource res, resource, start
-          @cacheStatusCode resource.uri, res.statusCode
-          @storeResource resource
+          @cacheStatusCode resource.uri, res.statusCode, callback
+          @storeResource resource, callback
 
     clientRequest.on 'error', (e) =>
       mapResponseToResource {statusCode:404}, resource, start
-      sendUrlStatus resource.status_code
-      @cacheStatusCode resource.uri, resource.status_code
-      @storeResource resource
+      callback null, resource.status_code
+      @cacheStatusCode resource.uri, resource.status_code, callback
+      @storeResource resource, callback
 
     clientRequest.end()
 
-  lookup: (resource, sendUrlStatus, prevResources=[]) ->
+  lookup: (resource, callback, prevResources=[]) ->
 
-    # fetching from the cache
     @resourceCache.lookup resource.uri, (err, statusCode) =>
-      if err? then throw new Error err
+      if err? then return callback err, null
 
-      if statusCode?
-        # send back the cached URL status
-        sendUrlStatus statusCode
+      if statusCode? then callback null, statusCode
+
       else
-        # fetch from repository
         @resourceRepository.findOne {uri:resource.uri}, (err, res) =>
-          if err? then throw new Error err
+          if err? then return callback err, null
 
           if res?
-            @cacheStatusCode res.uri, res.status_code
-            sendUrlStatus res.status_code
+            @cacheStatusCode res.uri, res.status_code, callback
+            callback null, res.status_code
+
           else
-            # crawl the new URL
-            @crawlUrl resource, sendUrlStatus, prevResources
+            @crawlUrl resource, callback, prevResources
 
 module.exports = Crawler

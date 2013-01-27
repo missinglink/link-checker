@@ -33,32 +33,11 @@ describe 'Resource', ->
       for url in invalidUrls
         ( -> new Resource url).should.throw 'Invalid uri'
 
-    it 'should not accept invalid filters', ->
-      uri = 'http://www.google.com/'
-      ( -> new Resource uri, false ).should.throw 'Invalid filters'
-      ( -> new Resource uri, {} ).should.throw 'Invalid filters'
-      ( -> new Resource uri, 1.1 ).should.throw 'Invalid filters'
-      ( -> new Resource uri, 'filters' ).should.throw 'Invalid filters'
-      ( -> new Resource uri, -> ).should.throw 'Invalid filters'
-
-      ( -> new Resource uri, [1, false]).should.throw 'filter is not a function'
-
     it 'should accept valid parameters', ->
-      A = (uri) -> return uri
-      B = (uri) -> return ''+uri
       for uri in validUris
-        resource = new Resource uri, [A,B]
+        (-> new Resource uri).should.not.throw()
+        resource = new Resource uri
         resource.uri.should.equal uri
-        resource.filters.should.eql [A,B]
-
-    it 'should set empty array for filters if no filters are passed', ->
-      uri = 'http://www.google.com/'
-      ( -> new Resource uri, undefined).should.not.throw
-      ( -> new Resource uri, null).should.not.throw
-      ( -> new Resource uri ).should.not.throw
-
-      resource = new Resource uri, null
-      resource.filters.should.eql []
 
   describe 'setStatusCode', ->
 
@@ -165,12 +144,17 @@ describe 'Resource', ->
       'https://www.domain.com:443/logo'
       'https://12.32.34.254/logo'
       'http://askubuntu.com/questions/12434534534/answers#comment12'
+      'http://www.google.com'
+      'mailto:fab@gmail.com'
     ]
 
     relativeUrls = [
       '/logo.gif'
       '../index.php'
       '/src/img/./../logo.png'
+      '#'
+      './'
+      'css/style.css'
     ]
 
     it 'should return true only for absoulte urls', ->
@@ -189,96 +173,17 @@ describe 'Resource', ->
       for url in relativeUrls
         Resource.isAbsolute(url).should.be.false
 
-  describe 'allowed()', ->
+  describe 'isProtocolAllowed', ->
     it 'should not allow mailto links', ->
-      Resource.allow('mailto:').should.be.false
+      Resource.isProtocolAllowed('mailto:').should.be.false
     it 'should not allow ftp links', ->
-      Resource.allow('ftp://www.google.com').should.be.false
+      Resource.isProtocolAllowed('ftp://www.google.com').should.be.false
 
-    it 'should allow protocols http, https, ftp, //', ->
-      Resource.allow('http://www.google.com').should.be.true
-      Resource.allow('https://www.google.com').should.be.true
-      Resource.allow('//ajax.google.com').should.be.true
-
-  describe 'removeFragment()', ->
-    it 'should add the original domain name to relative uri', ->
-
-      uri1 = 'http://www.ex.com/index.php?postId=2#new-comment'
-      uri2 = 'https://www.ex.com/#'
-
-      Resource.removeFragment(uri1).should.equal 'http://www.ex.com/index.php?postId=2'
-      Resource.removeFragment(uri2).should.equal 'https://www.ex.com/'
-
-  describe 'getAbsoluteURI', ->
-    dom1 = 'http://www.example.com/blog/'
-
-    requested1 = '../comment.html'
-    requested2 = '../../comment.html'
-    requested3 = '.../comment.html'
-    requested4 = 'about.html'
-    requested5 = 'tutorial1/'
-    requested6 = 'tutorial1/2.html'
-    requested7 = '/'
-    requested8 = '//www.internet.com'
-    requested9 = '/experts/'
-    requested10 = '../'
-    requested11 = '../experts/'
-    requested12 = '../../../'
-    requested13 = './'
-    requested14 = './about.html'
-    requested15 = './alpha2/./../about.html'
-    
-    it 'should remove the relative part', ->
-      conv = Resource.getAbsoluteURI
-      conv(requested1, dom1).should.equal 'http://www.example.com/comment.html'
-      conv(requested2, dom1).should.equal 'http://www.example.com/comment.html'
-      conv(requested3, dom1).should.equal 'http://www.example.com/blog/.../comment.html'
-      conv(requested4, dom1).should.equal 'http://www.example.com/blog/about.html'
-      conv(requested5, dom1).should.equal 'http://www.example.com/blog/tutorial1/'
-      conv(requested6, dom1).should.equal 'http://www.example.com/blog/tutorial1/2.html'
-      conv(requested7, dom1).should.equal 'http://www.example.com/'
-      conv(requested8, dom1).should.equal 'http://www.internet.com'
-      conv(requested9, dom1).should.equal 'http://www.example.com/experts/'
-      conv(requested10, dom1).should.equal 'http://www.example.com/'
-      conv(requested11, dom1).should.equal 'http://www.example.com/experts/'
-      conv(requested12, dom1).should.equal 'http://www.example.com/'
-      conv(requested13, dom1).should.equal 'http://www.example.com/blog/'
-      conv(requested14, dom1).should.equal 'http://www.example.com/blog/about.html'
-      conv(requested15, dom1).should.equal 'http://www.example.com/blog/about.html'
-
-  describe 'addDefaultProtocol', ->
-    it 'should add the default protocol when not present', ->
-      Resource.addDefaultProtocol('www.google.com').should.equal Resource.defaultProtocol + '//www.google.com'
-      Resource.addDefaultProtocol('//www.google.com').should.equal 'http://www.google.com'
-
-    it 'should not modify the uri when the protocol is already present', ->
-      Resource.addDefaultProtocol('https://www.google.com').should.equal 'https://www.google.com'
-
-  describe 'lowerCase', ->
-
-    it 'should transform protocol and hostname lowercase', ->
-      Resource.lowerCase('HTTP://www.Google.com').should.equal 'http://www.google.com'
-    
-    it 'should not transform the query string in lowercase', ->
-      Resource.lowerCase('HTTP://www.Google.com/a%C2%B1b').should.equal 'http://www.google.com/a%C2%B1b'
-
-  describe 'removePort', ->
-
-    it 'should remove the port from the uri', ->
-      Resource.removePort('http://www.example.com:80/bar.html').should.equal 'http://www.example.com/bar.html'
-    
-    it 'should not alter the uri if the port is not present', ->
-      Resource.removePort('http://www.example.com/bar.html').should.equal 'http://www.example.com/bar.html'
-
-  describe 'useCanonicalSlashes', ->
-
-    it 'should add a slash after a domain if not present', ->
-      Resource.useCanonicalSlashes('http://www.example.com').should.equal 'http://www.example.com/'
-    it 'should not add a slash after a domain if present', ->
-      Resource.useCanonicalSlashes('http://www.example.com/').should.equal 'http://www.example.com/'
-    it 'should not add a slash after a path if not present', ->
-      Resource.useCanonicalSlashes('http://www.example.com/images').should.equal 'http://www.example.com/images' 
-      Resource.useCanonicalSlashes('http://www.example.com/images/logo.jpg').should.equal 'http://www.example.com/images/logo.jpg'
-    it 'should remove a slash after a path if present', ->
-      Resource.useCanonicalSlashes('http://www.example.com/images/').should.equal 'http://www.example.com/images'
-      Resource.useCanonicalSlashes('http://www.example.com/images/logo.jpg/').should.equal 'http://www.example.com/images/logo.jpg'
+    it 'should allow protocols http, https, //', ->
+      Resource.isProtocolAllowed('http://www.google.com').should.be.true
+      Resource.isProtocolAllowed('https://www.google.com').should.be.true
+      Resource.isProtocolAllowed('//ajax.google.com').should.be.true
+      Resource.isProtocolAllowed('/').should.be.true
+      Resource.isProtocolAllowed('./css/style.css').should.be.true
+      Resource.isProtocolAllowed('css/style.css').should.be.true
+      Resource.isProtocolAllowed('#').should.be.true

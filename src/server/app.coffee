@@ -1,8 +1,12 @@
 #require('nodetime').profile()
 
 socketIO = require 'socket.io'
+
 Crawler  = require 'service/Crawler'
+
 Resource = require 'model/Resource'
+
+ResourceFilter = require 'filters/ResourceFilter'
 
 app = {}
 env = process.env.NODE_ENV || 'development';
@@ -37,12 +41,12 @@ io.on 'connection', (socket) ->
 
     if data?.href?
       
-      resource = crawlerService.filterInput data.href, originDomain
-
       # send response via socket
-      sendUrlStatus = (statusCode) ->
+      sendUrlStatus = (err, statusCode) ->
+        if err? then return console.log 'sendUrlStatus', err
         socket.emit 'url.status', 'url': data.href, 'status': statusCode
 
-      sendUrlStatus 200 unless Resource.allow data.href
+      if not Resource.isProtocolAllowed data.href then sendUrlStatus null, 200
 
-      crawlerService.lookup resource, sendUrlStatus
+      try crawlerService.lookup new Resource( ResourceFilter.filter(data.href, originDomain) ), sendUrlStatus
+      catch err then console.log 'ERROR', err

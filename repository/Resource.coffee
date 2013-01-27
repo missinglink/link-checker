@@ -9,8 +9,8 @@ class ResourceRepository
     @source = source
     @mapper = mapper
 
-  save: (resource, callback) ->
-    @source.save @mapper.marshall(resource), callback
+  insert: (resource, callback) ->
+    @source.insert @mapper.marshall(resource), callback
 
   findOne: (query, callback) ->
     @source.findOne query, callback
