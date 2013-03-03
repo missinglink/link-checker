@@ -48,5 +48,7 @@ io.on 'connection', (socket) ->
 
       if not Resource.isProtocolAllowed data.href then sendUrlStatus null, 200
 
-      try crawlerService.lookup new Resource( ResourceFilter.filter(data.href, originDomain) ), sendUrlStatus
+      try resource = new Resource ResourceFilter.filter(data.href, originDomain)
       catch err then console.log 'ERROR', err
+
+      crawlerService.lookup resource, sendUrlStatus

@@ -1,5 +1,3 @@
-- move mapper away from service crawler
-- determine how to avoid url duplicated in DB (cause of redirect) => maybe using findOrCreate is there such a thing?
 - create test for crawler service
 - analyse socket.io connection and measure speed
 - optimize the client JS in size and speed
