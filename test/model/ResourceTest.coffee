@@ -1,5 +1,7 @@
 Resource = require 'model/Resource'
+
 http = require 'http'
+
 
 describe 'Resource', ->
 
@@ -39,6 +41,8 @@ describe 'Resource', ->
         resource = new Resource uri
         resource.uri.should.equal uri
 
+# ---------------------------------------------------------------------
+
   describe 'setStatusCode', ->
 
     resource = new Resource validUris[0]
@@ -59,11 +63,15 @@ describe 'Resource', ->
         resource.setStatusCode(status).should.equal status
         resource.status_code.should.equal status
 
+# ---------------------------------------------------------------------
+
   describe 'setHTTPVersion', ->
     resource = new Resource validUris[0]
     it 'should set a valid version', ->
       resource.setHTTPVersion '1.1'
       resource.http_version.should.equal '1.1'
+
+# ---------------------------------------------------------------------
 
   describe 'setServer', ->
     resource = new Resource validUris[0]
@@ -82,6 +90,8 @@ describe 'Resource', ->
       resource.setServer 'nginx'
       resource.server.should.equal 'nginx'
 
+# ---------------------------------------------------------------------
+
   describe 'setContentType', ->
     resource = new Resource validUris[0]
 
@@ -98,6 +108,8 @@ describe 'Resource', ->
     it 'should set a valid content type', ->
       resource.setContentType 'text/html'
       resource.content_type.should.equal 'text/html'
+
+# ---------------------------------------------------------------------
 
   describe 'setLastChecked', ->
 
@@ -119,21 +131,25 @@ describe 'Resource', ->
       resource.setLastChecked(now).should.equal now
       resource.last_checked.should.equal now
 
-  describe 'setRequestTime', ->
-    resource = new Resource validUris[0]
-    it 'should not accept invalid time', ->
-      ( -> resource.setRequestTime()).should.throw 'Invalid time'
-      ( -> resource.setRequestTime(null)).should.throw 'Invalid time'
-      ( -> resource.setRequestTime(undefined)).should.throw 'Invalid time'
-      ( -> resource.setRequestTime(false)).should.throw 'Invalid time'
-      ( -> resource.setRequestTime([])).should.throw 'Invalid time'
-      ( -> resource.setRequestTime({})).should.throw 'Invalid time'
-      ( -> resource.setRequestTime('status:OK')).should.throw 'Invalid time'
+# ---------------------------------------------------------------------
 
-    it 'should accept valid time', ->
-      time = 256
-      resource.setRequestTime(time).should.equal time
-      resource.request_time.should.equal time
+  describe 'setRequestTime', ->
+
+    describe 'failures', ->
+
+      call() for call in [null, undefined, false, '', NaN, -1, [], {}, new Date, new Object, () ->].map (invalid) ->
+        () ->
+          it "should not accept #{invalid} as request time", ->
+            (-> (new Resource validUris[0]).setRequestTime invalid).should.throw 'Invalid time'
+
+    describe 'success', ->
+
+      call() for call in [0, 1, 10000].map (valid) ->
+        () ->
+          it "should accept #{valid} as request time", ->      
+            (new Resource validUris[0]).setRequestTime(valid).should.equal valid
+
+# ---------------------------------------------------------------------
 
   describe 'isAbsolute()', ->
     absoluteUrls = [
@@ -172,6 +188,8 @@ describe 'Resource', ->
 
       for url in relativeUrls
         Resource.isAbsolute(url).should.be.false
+
+# ---------------------------------------------------------------------
 
   describe 'isProtocolAllowed', ->
     it 'should not allow mailto links', ->

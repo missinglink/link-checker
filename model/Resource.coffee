@@ -1,6 +1,7 @@
-http          = require 'http'
-url           = require 'url'
-validator     = require 'validator'
+http      = require 'http'
+url       = require 'url'
+validator = require 'validator'
+check     = require 'check-types'
 
 
 class Resource
@@ -52,7 +53,7 @@ class Resource
     @last_checked = date
 
   setRequestTime: (requestTime) ->
-    throw new Error 'Invalid time' unless typeof requestTime is 'number'
+    throw new Error 'Invalid time' unless check.isPositiveNumber(requestTime) or requestTime is 0
     @request_time = requestTime
 
   setContentType: (contentType) ->
