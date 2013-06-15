@@ -1,7 +1,7 @@
 http          = require 'http'
 url           = require 'url'
 validator     = require 'validator'
-classChecker  = require 'lib/utils/classChecker'
+
 
 class Resource
 
@@ -47,7 +47,7 @@ class Resource
     @server = server
 
   setLastChecked: (date) ->
-    throw new Error 'Invalid date' unless classChecker(date) is 'date'
+    throw new Error 'Invalid date' unless date instanceof Date
 
     @last_checked = date
 

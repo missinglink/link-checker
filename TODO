@@ -1,4 +1,13 @@
+code improvements
+- use event emitter
+
+test
 - create test for crawler service
+
+websocket
+- possibly replace socket.io with engine.io
 - analyse socket.io connection and measure speed
 - optimize the client JS in size and speed
+
+dev ops
 - setup a bot that re-crawl all expired records

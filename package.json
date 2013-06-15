@@ -1,12 +1,19 @@
 {
   "name": "link-checker",
   "preferGlobal": "fasle",
+  "private": true,
   "version": "0.0.1",
   "description": "LinkChecker",
-  "contributors": [{
-    "name": "Fabrizio Moscon",
-    "email": "mosconfabrizio@gmail.com"
-  }],
+  "contributors": [
+    {
+      "name": "Fabrizio Moscon",
+      "email": "mosconfabrizio@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/missinglink/link-checker"
+  },
   "scripts": {
     "start": "export NODE_PATH=`pwd` && coffee src/server/app.coffee",
     "front-test": "export NODE_PATH=`pwd` && mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
@@ -14,22 +21,21 @@
     "test": "export NODE_PATH=`pwd` && npm run back-test && npm run front-test"
   },
   "dependencies" : {
-    "coffee-script" : "*",
-    "redis" : "*",
-    "jitter" : "*",
+    "coffee-script" : "1.6.x",
+    "redis" : "0.8.x",
     "socket.io" : "0.9.x",
     "validator": "0.4.x",
-    "mongodb": "1.2.x",
-    "async_bench": "*"
+    "mongodb": "1.3.x"
   },
   "devDependencies": {
-    "mocha": "1.7.x",
+    "mocha": "1.9.x",
     "assert": "0.4.x",
     "should": "1.2.x",
     "breakdown": "*"
   },
   "engines": {
     "node": "0.8.x",
-    "npm": "1.1.x"
+    "npm": "1.1.x",
+    "mongo": ">=2.2"
   }
 }
