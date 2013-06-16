@@ -40,4 +40,4 @@ io.on 'connection', (socket) ->
       try resource = new Resource ResourceFilter.filter(data.href, originDomain)
       catch err then console.log 'ERROR', err
 
-      crawlerService.lookup resource, sendUrlStatus
+      crawlerService.lookup resource, null, null, sendUrlStatus

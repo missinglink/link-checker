@@ -18,8 +18,8 @@ class ResourceRepository
     @source.insert @mapper.marshall(resource), callback
 
 
-  findOne: (query, callback) ->
-    @source.findOne query, callback
+  findOne: (uri, callback) ->
+    @source.findOne uri, callback
 
 
   findAll: (query, fields, options, callback) ->

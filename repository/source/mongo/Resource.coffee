@@ -10,8 +10,8 @@ class Resource
     MongoGateway.insert collectionName, resource, callback
 
 
-  @findOne: (query, callback) ->
-    MongoGateway.findOne collectionName, query, callback
+  @findOne: (uri, callback) ->
+    MongoGateway.findOne collectionName, {uri: uri}, callback
 
 
   @findAll: (query, fields, options, callback) ->

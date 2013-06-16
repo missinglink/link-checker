@@ -9,7 +9,7 @@ class RedisCache
   redisClient = undefined
 
 
-  init: () =>
+  init: () ->
     @redisClient = redis.createClient config.redis.port, config.redis.host
     throw new Error 'impossible to connect to redis' unless @redisClient?
 
@@ -26,11 +26,11 @@ class RedisCache
 
 
 
-  save: (uri, statusCode, callback) =>
+  save: (uri, statusCode, callback) ->
     @redisClient.set uri, statusCode, callback
 
 
-  lookup: (requestedUrl, callback) =>
+  lookup: (requestedUrl, callback) ->
     @redisClient.get requestedUrl, callback
 
 
