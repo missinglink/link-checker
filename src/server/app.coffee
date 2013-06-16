@@ -27,12 +27,12 @@ io.on 'connection', (socket) ->
 
   socket.on 'url.add', (data) ->
 
-    if data?.href?
+    if data? and data.href? and data.n?
       
       # send response via socket
       sendUrlStatus = (err, statusCode) ->
         return console.log 'sendUrlStatus', err if err?
-        socket.emit 'url.status', 'url': data.href, 'status': statusCode
+        socket.emit 'url.status', {'n': data.n, 'status': statusCode}
 
       if not Resource.isProtocolAllowed data.href
         sendUrlStatus null, 200

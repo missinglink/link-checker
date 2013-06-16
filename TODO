@@ -1,3 +1,6 @@
+store cache
+- add TTL to the cache url keys
+
 code improvements
 - R&D how to use event emitter providing the result in a callback style
 
@@ -7,7 +10,6 @@ test
 websocket
 - possibly replace socket.io with engine.io
 - analyse socket.io connection and measure speed
-- optimize the client JS in size and speed
 
 dev ops
 - setup a bot that re-crawl all expired records

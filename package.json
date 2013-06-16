@@ -15,6 +15,7 @@
     "url": "https://github.com/missinglink/link-checker"
   },
   "scripts": {
+    "prestart": "./node_modules/.bin/coffee -c -o ./public/lib ./client/src",
     "start": "export NODE_PATH=`pwd` && coffee src/server/app.coffee",
     "front-test": "export NODE_PATH=`pwd` && mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
     "back-test": "export NODE_PATH=`pwd` && mocha test --recursive --reporter spec --compilers coffee:coffee-script",
