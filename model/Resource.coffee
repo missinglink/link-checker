@@ -6,6 +6,12 @@ check     = require 'check-types'
 
 class Resource
 
+  @defaultProtocol = 'http:'
+  
+  @defaultPort = 'http:': 80, 'https:': 443
+  
+  @defaultPath = '/'
+  
   @isAbsolute = (uri) ->
     return false unless typeof uri is 'string'
     p = url.parse uri, true
@@ -16,10 +22,12 @@ class Resource
     return false unless p.pathname.length > 0
     return true
 
+
   @isProtocolAllowed = (uri) ->
     return true unless Resource.isAbsolute uri
     if /^(http:|https:)?\/\/.*$/.test uri then return true
     return false
+
 
   constructor: (uri) ->
     throw new Error 'Invalid uri' unless typeof uri is 'string'
@@ -35,35 +43,36 @@ class Resource
 
     @uri = uri
 
+
   setStatusCode: (statusCode) ->
     throw new Error 'Invalid status code' unless ''+statusCode in Object.keys http.STATUS_CODES
-
     @status_code = statusCode
 
+
   setHTTPVersion: (version) ->
+    throw new Error 'Invalid version' unless typeof version is 'string'
     @http_version = version        
+
 
   setServer: (server) ->
     throw new Error 'Invalid server' unless typeof server is 'string'
     @server = server
+
 
   setLastChecked: (date) ->
     throw new Error 'Invalid date' unless date instanceof Date
 
     @last_checked = date
 
+
   setRequestTime: (requestTime) ->
     throw new Error 'Invalid time' unless check.isPositiveNumber(requestTime) or requestTime is 0
     @request_time = requestTime
+
 
   setContentType: (contentType) ->
     throw new Error 'Invalid content type' unless typeof contentType is 'string'
     @content_type = contentType
 
-Resource.defaultProtocol = 'http:'
-Resource.defaultPort     = 
-  'http:': 80
-  'https:': 443
-Resource.defaultPath     = '/'
 
 module.exports = Resource
