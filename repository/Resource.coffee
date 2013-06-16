@@ -1,4 +1,5 @@
-Source         = require 'repository/source/mongo/Resource'
+Source = require 'repository/source/mongo/Resource'
+
 ResourceMapper = require 'mapper/ResourceMapper'
 
 

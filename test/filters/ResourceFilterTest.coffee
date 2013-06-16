@@ -2,6 +2,7 @@ ResourceFilter = require 'filters/ResourceFilter'
 
 Resource = require 'model/Resource'
 
+
 describe 'ResourceFilter', ->
 
   describe 'filter', ->
@@ -9,29 +10,24 @@ describe 'ResourceFilter', ->
     href = 'index.php'
     originDomain = 'http://www.google.com/'
     
-    it 'should not accept invalid href', ->
-      (-> ResourceFilter.filter()).should.throw 'Invalid href'
-      (-> ResourceFilter.filter undefined).should.throw 'Invalid href'
-      (-> ResourceFilter.filter null).should.throw 'Invalid href'
-      (-> ResourceFilter.filter 1.1).should.throw 'Invalid href'
-      (-> ResourceFilter.filter false).should.throw 'Invalid href'
-      (-> ResourceFilter.filter []).should.throw 'Invalid href'
-      (-> ResourceFilter.filter {}).should.throw 'Invalid href'
+    describe 'failures', ->
 
-    it 'should not accept invalid originDomain', ->
-      (-> ResourceFilter.filter href).should.throw 'Invalid originDomain'
-      (-> ResourceFilter.filter href, undefined).should.throw 'Invalid originDomain'
-      (-> ResourceFilter.filter href, null).should.throw 'Invalid originDomain'
-      (-> ResourceFilter.filter href, 1.1).should.throw 'Invalid originDomain'
-      (-> ResourceFilter.filter href, false).should.throw 'Invalid originDomain'
-      (-> ResourceFilter.filter href, []).should.throw 'Invalid originDomain'
-      (-> ResourceFilter.filter href, {}).should.throw 'Invalid originDomain'
+      call() for call in [null, undefined, false, NaN, 0, -1, 1.1, [], {}, new Date, () ->].map (invalid) ->
+        () ->
+          it "should not accept #{invalid} as href", ->
+            (-> ResourceFilter.filter invalid).should.throw 'Invalid href'
 
-      (-> ResourceFilter.filter href, 'somedomain').should.throw 'Invalid originDomain'
+      call() for call in [null, undefined, false, NaN, 0, -1, 1.1, [], {}, new Date, () ->].map (invalid) ->
+        () ->
+          it "should not accept #{invalid} as originDomain", ->
+            (-> ResourceFilter.filter href, invalid).should.throw 'Invalid originDomain'
 
-    it 'should accept valid parameters', ->
-      (-> ResourceFilter.filter href, originDomain).should.not.throw()
+    describe 'success', ->
 
+      it 'should accept valid parameters', ->
+        (-> ResourceFilter.filter href, originDomain).should.not.throw()
+
+# ------------------------------------------------------------------------------
 
   describe 'getAbsoluteURI', ->
     dom1 = 'http://www.example.com/blog/'
@@ -70,6 +66,8 @@ describe 'ResourceFilter', ->
       conv(requested14, dom1).should.equal 'http://www.example.com/blog/about.html'
       conv(requested15, dom1).should.equal 'http://www.example.com/blog/about.html'
 
+# ------------------------------------------------------------------------------
+
   describe 'removeFragment()', ->
     it 'should add the original domain name to relative uri', ->
 
@@ -79,6 +77,8 @@ describe 'ResourceFilter', ->
       ResourceFilter.removeFragment(uri1).should.equal 'http://www.ex.com/index.php?postId=2'
       ResourceFilter.removeFragment(uri2).should.equal 'https://www.ex.com/'
 
+# ------------------------------------------------------------------------------
+
   describe 'addDefaultProtocol', ->
     it 'should add the default protocol when not present', ->
       ResourceFilter.addDefaultProtocol('www.google.com').should.equal Resource.defaultProtocol + '//www.google.com'
@@ -86,6 +86,8 @@ describe 'ResourceFilter', ->
 
     it 'should not modify the uri when the protocol is already present', ->
       ResourceFilter.addDefaultProtocol('https://www.google.com').should.equal 'https://www.google.com'
+
+# ------------------------------------------------------------------------------
 
   describe 'lowerCase', ->
 
@@ -95,6 +97,8 @@ describe 'ResourceFilter', ->
     it 'should not transform the query string in lowercase', ->
       ResourceFilter.lowerCase('HTTP://www.Google.com/a%C2%B1b').should.equal 'http://www.google.com/a%C2%B1b'
 
+# ------------------------------------------------------------------------------
+
   describe 'removePort', ->
 
     it 'should remove the port from the uri', ->
@@ -102,6 +106,8 @@ describe 'ResourceFilter', ->
     
     it 'should not alter the uri if the port is not present', ->
       ResourceFilter.removePort('http://www.example.com/bar.html').should.equal 'http://www.example.com/bar.html'
+
+# ------------------------------------------------------------------------------
 
   describe 'useCanonicalSlashes', ->
 
