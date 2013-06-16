@@ -46,7 +46,7 @@ class Crawler
     return
 
 
-  crawlUrl: (resource, callback, prevResources = [], maxRedirects) ->
+  crawlUrl: (resource, prevResources = [], maxRedirects, callback) ->
     return callback new Error('invalid resource'), null unless resource instanceof Resource
 
     # resource.method = 'HEAD'
@@ -64,10 +64,12 @@ class Crawler
       method: resource.method
       path: resource.path
       headers: {}
-      agent: httpModule.globalAgent
+      agent: false
 
-    start = Date.now()
+    start = new Date
+
     req = httpModule.request options, (res) =>
+
       prevResources.push resource
 
       if 300 <= res.statusCode < 400 and (@followAllRedirects or @followRedirects)
@@ -84,18 +86,23 @@ class Crawler
           return callback new Error('No location to redirect to specified'), null
 
       else
-        for resource, index in prevResources
-          return callback null, res.statusCode if index is 0
+        for prevResource, index in prevResources
+          if index is 0 then callback null, res.statusCode
 
-          try resource = @resourceMapper.unmarshall res, resource, start
-          catch error then console.log error
+          try prevResource = @resourceMapper.unmarshall res, prevResource, start
+          catch error
+            console.log error
+            return callback error, null
 
-          @cacheStatusCode resource.uri, res.statusCode
-          @storeResource resource
+          @cacheStatusCode prevResource.uri, res.statusCode
+          @storeResource prevResource
+
 
     req.on 'error', (e) =>
       try resource = @resourceMapper.unmarshall {statusCode:404}, resource, start
-      catch error then console.log error
+      catch error
+        console.log error
+        return callback error, null
 
       @cacheStatusCode resource.uri, resource.status_code
       @storeResource resource
@@ -107,9 +114,8 @@ class Crawler
 
   lookup: (resource, prevResources = [], maxRedirects = MAX_REDIRECTS, callback) ->
     @resourceCache.lookup resource.uri, (err, statusCode) =>
-
+      return callback err, null if err?
       return callback null, statusCode if statusCode?
-      return callback err, nul if err?
 
       @resourceRepository.findOne resource.uri, (err, res) =>
         return callback err, null if err?
@@ -119,7 +125,7 @@ class Crawler
           return callback null, res.status_code
 
         else
-          return @crawlUrl resource, callback, prevResources, maxRedirects
+          return @crawlUrl resource, prevResources, maxRedirects, callback
 
       return
 

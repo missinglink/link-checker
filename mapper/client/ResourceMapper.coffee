@@ -18,9 +18,9 @@ unmarshall = (response, resource, start) ->
   resource.setServer response.headers.server if response.headers?.server?
   resource.setContentType response.headers['content-type'] if response.headers?['content-type']?
 
-  resource.setRequestTime Date.now()-start
+  resource.setRequestTime Date.now()-start.getTime()
 
-  # console.log 'ELAPSED TIME', Date.now()-start
+  # console.log 'ELAPSED TIME', Date.now()-start.getTime()
 
   return resource
 

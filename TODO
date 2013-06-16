@@ -1,3 +1,6 @@
+feature
+- find out why www.stuff.co.nz returns 501
+
 store cache
 - add TTL to the cache url keys
 
@@ -19,3 +22,6 @@ logging
 
 environment
 - pass environment via file /set-env
+
+DB index
+- add index on uri

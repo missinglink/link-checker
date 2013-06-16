@@ -27,11 +27,13 @@ class RedisCache
 
 
   save: (uri, statusCode, callback) ->
-    @redisClient.set uri, statusCode, callback
+    if uri? and statusCode?
+      @redisClient.set uri, statusCode, callback
 
 
   lookup: (requestedUrl, callback) ->
-    @redisClient.get requestedUrl, callback
+    if requestedUrl?
+      @redisClient.get requestedUrl, callback
 
 
 module.exports = new RedisCache

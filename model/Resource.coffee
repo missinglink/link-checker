@@ -45,7 +45,7 @@ class Resource
 
 
   setStatusCode: (statusCode) ->
-    throw new Error 'Invalid status code' unless ''+statusCode in Object.keys http.STATUS_CODES
+    throw new Error 'Invalid status code' unless statusCode? and ''+statusCode in Object.keys http.STATUS_CODES
     @status_code = statusCode
 
 
@@ -60,7 +60,7 @@ class Resource
 
 
   setLastChecked: (lastChecked) ->
-    throw new Error 'Invalid last checked' unless lastChecked instanceof Date
+    throw new Error 'Invalid last checked' unless lastChecked? and lastChecked instanceof Date
 
     @last_checked = lastChecked
 
