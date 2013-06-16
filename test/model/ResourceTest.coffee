@@ -113,23 +113,20 @@ describe 'Resource', ->
 
   describe 'setLastChecked', ->
 
-    resource = new Resource validUris[0]
+    describe 'failures', ->
 
-    it 'should not accept invalid parameters', ->
-      ( -> resource.setLastChecked()).should.throw 'Invalid date'
-      ( -> resource.setLastChecked(null)).should.throw 'Invalid date'
-      ( -> resource.setLastChecked(undefined)).should.throw 'Invalid date'
-      ( -> resource.setLastChecked(false)).should.throw 'Invalid date'
-      ( -> resource.setLastChecked([])).should.throw 'Invalid date'
-      ( -> resource.setLastChecked({})).should.throw 'Invalid date'
-      ( -> resource.setLastChecked('status:OK')).should.throw 'Invalid date'
-      ( -> resource.setLastChecked(1.111)).should.throw 'Invalid date'
-      ( -> resource.setLastChecked(600)).should.throw 'Invalid date'
+      call() for call in [null, undefined, false, '', NaN, -1, [], {}, new Object, () ->].map (invalid) ->
+        () ->
+          it "should not accept #{invalid} as last checked", ->
+            (-> (new Resource validUris[0]).setLastChecked invalid).should.throw 'Invalid last checked'
 
-    it 'should accept valid paramenter', ->
-      now = new Date()
-      resource.setLastChecked(now).should.equal now
-      resource.last_checked.should.equal now
+    describe 'success', ->
+
+      it 'should accept valid paramenter', ->
+        now = new Date()
+        resource = new Resource validUris[0]
+        resource.setLastChecked(now).should.equal now
+        resource.last_checked.should.equal now
 
 # ---------------------------------------------------------------------
 

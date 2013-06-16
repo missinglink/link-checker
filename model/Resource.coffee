@@ -59,10 +59,10 @@ class Resource
     @server = server
 
 
-  setLastChecked: (date) ->
-    throw new Error 'Invalid date' unless date instanceof Date
+  setLastChecked: (lastChecked) ->
+    throw new Error 'Invalid last checked' unless lastChecked instanceof Date
 
-    @last_checked = date
+    @last_checked = lastChecked
 
 
   setRequestTime: (requestTime) ->
