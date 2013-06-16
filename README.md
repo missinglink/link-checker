@@ -3,26 +3,22 @@ Link Checker
 
 
 
-Install Node
-------------
-
-    sh node-install.sh
-
 Install/Update Packages
 -----------------------
 
-    npm install
+  npm install
+
 
 Run the example server
 ---------------------
 
-    npm start
+  npm start
 
 Example usage
 
-    http://localhost:3000/check?links=["http://www.example.com"]
+  http://localhost:3000/check?links=["http://www.example.com"]
 
-reun test
+Unit Testing
 ---------------------------
 
-    npm test
+  npm test
