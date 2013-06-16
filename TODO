@@ -1,5 +1,5 @@
 code improvements
-- use event emitter
+- R&D how to use event emitter providing the result in a callback style
 
 test
 - create test for crawler service
@@ -11,3 +11,9 @@ websocket
 
 dev ops
 - setup a bot that re-crawl all expired records
+
+logging
+- use bunyan
+
+environment
+- pass environment via file /set-env
