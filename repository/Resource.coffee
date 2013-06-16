@@ -6,8 +6,9 @@ class ResourceRepository
 
 
   constructor: (source = Source, mapper = ResourceMapper) ->
-    throw new Error 'Invalid param' unless source instanceof Function
-    throw new Error 'Invalid param' unless mapper instanceof Function
+    throw new Error 'Invalid source' unless source instanceof Function
+    throw new Error 'Invalid mapper marshall' unless mapper?.marshall instanceof Function 
+    throw new Error 'Invalid mapper unmarshall' unless mapper?.unmarshall instanceof Function
     @source = source
     @mapper = mapper
 
