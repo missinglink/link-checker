@@ -1,5 +1,3 @@
-#require('nodetime').profile()
-
 socketIO = require 'socket.io'
 
 Crawler  = require 'service/Crawler'
@@ -8,26 +6,16 @@ Resource = require 'model/Resource'
 
 ResourceFilter = require 'filters/ResourceFilter'
 
-app = {}
-env = process.env.NODE_ENV || 'development';
+config = require 'src/config/common'
 
-# init environment specific configurations
-switch env
-  when 'development'
-    environment = require 'src/config/environment/development'
-  when 'staging'
-    environment = require 'src/config/environment/staging'
-  when 'production'
-    environment = require 'src/config/environment/production'
-  else throw new Error 'environment ' + env + ' not defined'
-environment app
+app = {}
 
 # init database
 db = require 'src/config/db'
 db.init app
 
 #init socket.io
-io = socketIO.listen 3000
+io = socketIO.listen config.websocket.port
 io.set 'log level', 0
 
 crawlerService = new Crawler
@@ -43,10 +31,11 @@ io.on 'connection', (socket) ->
       
       # send response via socket
       sendUrlStatus = (err, statusCode) ->
-        if err? then return console.log 'sendUrlStatus', err
+        return console.log 'sendUrlStatus', err if err?
         socket.emit 'url.status', 'url': data.href, 'status': statusCode
 
-      if not Resource.isProtocolAllowed data.href then sendUrlStatus null, 200
+      if not Resource.isProtocolAllowed data.href
+        sendUrlStatus null, 200
 
       try resource = new Resource ResourceFilter.filter(data.href, originDomain)
       catch err then console.log 'ERROR', err

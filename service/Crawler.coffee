@@ -1,4 +1,4 @@
-http = require 'http'
+http  = require 'http'
 https = require 'https'
 
 Resource = require 'model/Resource'
@@ -9,13 +9,14 @@ ResourceRepository = require 'repository/Resource'
 
 ResourceFilter = require 'filters/ResourceFilter'
 
-Cache = require 'service/cache/Redis'
+redisCache = require 'service/cache/Redis'
 
 MAX_REDIRECTS = 10
 
+
 class Crawler
 
-  constructor: (resourceCache = Cache, resourceRepository = ResourceRepository, resourceMapper = ResourceMapper) ->
+  constructor: (resourceCache = redisCache, resourceRepository = ResourceRepository, resourceMapper = ResourceMapper) ->
     throw new Error 'Invalid cache' unless resourceCache?
     throw new Error 'Invalid repository' unless resourceRepository?
     throw new Error 'Invalid mapper' unless resourceMapper?
@@ -28,22 +29,29 @@ class Crawler
     @followRedirects = true
     @followAllRedirects = true
 
+  
   cacheStatusCode: (uri, statusCode, callback) ->
     @resourceCache.save uri, statusCode, (err, data) ->
       if callback instanceof Function
-        if err? then return callback err, null
+        return callback err, null if err?
 
         # @TODO WTF is ERROR(data)
         return callback new Error(data), null unless data is 'OK'
+        return callback null, data
+    return
 
+  
   storeResource: (resource, callback) ->
     @resourceRepository.insert resource, (err, data) ->
       if callback instanceof Function
-        if err? then return callback err, null
+        return callback err, null if err?
         
         # @TODO WTF is ERROR(data)
         return callback new Error(data), null unless Array.isArray data
+        return callback null, data
+    return
 
+  
   crawlUrl: (resource, callback, prevResources=[], maxRedirects) ->
     return callback new Error('invalid resource'), null unless resource instanceof Resource
      
@@ -73,10 +81,11 @@ class Crawler
         if res.headers.location
           if maxRedirects is 0 then return callback null, res.statusCode
           else
-            return @lookup new Resource( ResourceFilter.filter(res.headers.location, resource.hostname) ),
+            @lookup new Resource( ResourceFilter.filter(res.headers.location, resource.hostname) ),
               callback,
               prevResources,
               (maxRedirects-1)
+            return
         else
           return callback new Error('No location to redirect to specified'), null
       
@@ -86,34 +95,42 @@ class Crawler
 
           try resource = @resourceMapper.unmarshall res, resource, start
           catch error then console.log error
+
           @cacheStatusCode resource.uri, res.statusCode
           @storeResource resource
 
     clientRequest.on 'error', (e) =>
       try resource = @resourceMapper.unmarshall {statusCode:404}, resource, start
       catch error then console.log error
-      callback null, resource.status_code
+      
       @cacheStatusCode resource.uri, resource.status_code
       @storeResource resource
 
+      return callback null, resource.status_code
+
     clientRequest.end()
 
+  
   lookup: (resource, callback, prevResources=[], maxRedirects = MAX_REDIRECTS) ->
 
     @resourceCache.lookup resource.uri, (err, statusCode) =>
-      if err? then return callback err, null
+      return callback err, null if err?
 
-      if statusCode? then callback null, statusCode
+      return callback null, statusCode if statusCode?
 
-      else
-        @resourceRepository.findOne {uri:resource.uri}, (err, res) =>
-          if err? then return callback err, null
+      @resourceRepository.findOne {uri:resource.uri}, (err, res) =>
+        return callback err, null if err?
 
-          if res?
-            @cacheStatusCode res.uri, res.status_code, callback
-            callback null, res.status_code
+        if res?
+          @cacheStatusCode res.uri, res.status_code, callback
+          return callback null, res.status_code
 
-          else
-            @crawlUrl resource, callback, prevResources, maxRedirects
+        else
+          return @crawlUrl resource, callback, prevResources, maxRedirects
+
+      return
+
+    return
+
 
 module.exports = Crawler

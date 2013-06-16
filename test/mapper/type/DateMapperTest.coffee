@@ -7,7 +7,7 @@ describe 'DateMapper', ->
   model = DateMapper.unmarshall(date)
 
   it 'should unmarshall (data -> model)', ->
-    ( model instanceof Date ).should.be.true
+    model.should.be.instanceof Date
     model.toISOString().should.equal date
 
   it 'should marshall (model -> data)', ->

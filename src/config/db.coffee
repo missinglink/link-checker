@@ -1,15 +1,17 @@
 MongoGateway = require 'lib/MongoGateway'
 
+config = require 'src/config/common'
+
+
 module.exports.init = (app) ->
 
-  db = app.config.db
-  dsn = db.protocol + '://'
-  if db.user? then dsn += db.user
-  if db.password? then dsn += ':' + db.password
-  dsn += db.host + ':' + db.port + '/' + db.dbName
-  
-  console.log 'Connecting to database: ' + dsn  
+  userAndPassDSN = (
+    if config.db.user? and config.db.password? then "#{config.db.user}:#{config.db.password}@"
+    else ''
+  )
+
+  console.log "Connected to DB: #{config.db.protocol}://#{userAndPassDSN}#{config.db.host}:#{config.db.port}/#{config.db.dbName}"
 
   MongoGateway.setLogger app.mongoLogger
-  MongoGateway.init db
-  MongoGateway.connect db.user, db.password
+  MongoGateway.init config.db
+  MongoGateway.connect config.db.user, config.db.password
