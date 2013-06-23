@@ -16,10 +16,10 @@
   },
   "scripts": {
     "prestart": "./node_modules/.bin/coffee -c -o ./public/lib ./client/src",
-    "start": "export NODE_PATH=`pwd` && coffee src/server/app.coffee",
-    "front-test": "export NODE_PATH=`pwd` && mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
-    "back-test": "export NODE_PATH=`pwd` && mocha test --recursive --reporter spec --compilers coffee:coffee-script",
-    "test": "export NODE_PATH=`pwd` && npm run back-test && npm run front-test"
+    "start": "coffee src/server/app.coffee",
+    "front-test": "mocha public/test --recursive --reporter spec --compilers coffee:coffee-script",
+    "back-test": "mocha test --recursive --reporter spec --compilers coffee:coffee-script",
+    "test": "npm run back-test && npm run front-test"
   },
   "dependencies": {
     "mongodb": "1.3.x",
@@ -27,7 +27,8 @@
     "redis": "0.8.x",
     "socket.io": "0.9.x",
     "validator": "0.4.x",
-    "check-types": "0.6.x"
+    "check-types": "0.6.x",
+    "rootpath": "0.1.x"
   },
   "devDependencies": {
     "mocha": "1.9.x",
