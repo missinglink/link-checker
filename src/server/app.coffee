@@ -1,3 +1,5 @@
+require('rootpath')()
+
 socketIO = require 'socket.io'
 
 Crawler  = require 'service/Crawler'
